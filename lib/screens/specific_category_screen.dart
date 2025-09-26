@@ -76,145 +76,152 @@ class _SpecificCategoryScreenState
           }
           return false;
         },
-        child: CustomScrollView(
-          slivers: [
-            if (photoState.inProgress)
-              const SliverFillRemaining(
-                child: Center(
-                  child: CircularProgressIndicator(color: Colors.black),
-                ),
-              )
-
-            else if (photoState.photos.isEmpty)
-              const SliverFillRemaining(
-                child: Center(child: Text('No wallpapers to show')),
-              )
-
-            else
-              SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: width*0.02, vertical: height*0.02),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 0.7,
+        child: RefreshIndicator(
+          onRefresh: ()async{
+            await photoNotifier.fetchCategory(widget.categoryName);
+          },
+          backgroundColor: Colors.black,
+          color: Colors.white,
+          child: CustomScrollView(
+            slivers: [
+              if (photoState.inProgress)
+                const SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.black),
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                      final data = photoState.photos[index];
-                      return Card(
-                        color: Colors.white,
-                        shadowColor: Colors.black45,
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ImageScreen(
-                                      photo: data,
-                                      heroTag: data.id.toString(),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Hero(
-                                  tag: data.id.toString(),
-                                  child: CachedNetworkImage(
-                                    imageUrl: data.srcOriginal ?? '',
-                                    fit: BoxFit.cover,
-                                    fadeInDuration:
-                                    const Duration(milliseconds: 500),
-                                    placeholder: (context, url) => CachedNetworkImage(
-                                      imageUrl : data.srcMedium ?? '',
-                                      fit: BoxFit.cover,
-                                    ),
-                                    errorWidget: (context, error, st) =>
-                                    const Icon(Icons.broken_image),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: Consumer(
-                                builder: (context, ref, _) {
-                                  final favState = ref.watch(favPhotoNotifier);
-                                  final favNotifier =
-                                  ref.read(favPhotoNotifier.notifier);
+                )
 
-                                  final isFav = favState.favPhotos.any((i) => i.id == data.id);
+              else if (photoState.photos.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(child: Text('No wallpapers to show')),
+                )
 
-                                  return AnimatedSwitcher(
-                                    duration:
-                                    const Duration(milliseconds: 300),
-                                    transitionBuilder: (child, animation) =>
-                                        ScaleTransition(
-                                          scale: animation,
-                                          child: child,
-                                        ),
-                                    child: IconButton(
-                                      key: ValueKey(isFav),
-                                      onPressed: () {
-                                        favNotifier.toggleFavPhoto(data);
-                                      },
-                                      icon: isFav
-                                          ? const Icon(
-                                        Icons.favorite,
-                                        color: Colors.white,
-                                        size: 28,
-                                      )
-                                          : const Icon(
-                                        Icons.favorite_outline,
-                                        color: Colors.white,
-                                        size: 28,
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: width*0.02, vertical: height*0.02),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 0.65,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                        final data = photoState.photos[index];
+                        return Card(
+                          color: Colors.white,
+                          shadowColor: Colors.black45,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ImageScreen(
+                                        photo: data,
+                                        heroTag: data.id.toString(),
                                       ),
                                     ),
                                   );
                                 },
-                              ),
-                            ),
-                            Positioned(
-                              left: 10,
-                              bottom: 10,
-                              child: Text(
-                                'By : ${data.photographer}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Hero(
+                                    tag: data.id.toString(),
+                                    child: CachedNetworkImage(
+                                      imageUrl: data.srcOriginal ?? '',
+                                      fit: BoxFit.cover,
+                                      fadeInDuration:
+                                      const Duration(milliseconds: 500),
+                                      placeholder: (context, url) => CachedNetworkImage(
+                                        imageUrl : data.srcMedium ?? '',
+                                        fit: BoxFit.cover,
+                                      ),
+                                      errorWidget: (context, error, st) =>
+                                      const Icon(Icons.broken_image),
+                                    ),
+                                  ),
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                    childCount: photoState.photos.length,
-                  ),
-                ),
-              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: Consumer(
+                                  builder: (context, ref, _) {
+                                    final favState = ref.watch(favPhotoNotifier);
+                                    final favNotifier =
+                                    ref.read(favPhotoNotifier.notifier);
 
-            if (photoState.isLoadingMore)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(
-                    child: CircularProgressIndicator(color: Colors.black),
+                                    final isFav = favState.favPhotos.any((i) => i.id == data.id);
+
+                                    return AnimatedSwitcher(
+                                      duration:
+                                      const Duration(milliseconds: 300),
+                                      transitionBuilder: (child, animation) =>
+                                          ScaleTransition(
+                                            scale: animation,
+                                            child: child,
+                                          ),
+                                      child: IconButton(
+                                        key: ValueKey(isFav),
+                                        onPressed: () {
+                                          favNotifier.toggleFavPhoto(data);
+                                        },
+                                        icon: isFav
+                                            ? const Icon(
+                                          Icons.favorite,
+                                          color: Colors.white,
+                                          size: 28,
+                                        )
+                                            : const Icon(
+                                          Icons.favorite_outline,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Positioned(
+                                left: 10,
+                                bottom: 10,
+                                child: Text(
+                                  'By : ${data.photographer}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                      childCount: photoState.photos.length,
+                    ),
                   ),
                 ),
-              ),
-          ],
+
+              if (photoState.isLoadingMore)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.black),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

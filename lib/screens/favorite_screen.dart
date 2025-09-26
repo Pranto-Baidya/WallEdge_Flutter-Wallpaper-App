@@ -78,7 +78,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                 return [
                   PopupMenuItem(
                       onTap: (){
-                        Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.');
+                        Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.',null);
                       },
                       child: Text('Change Log',style: TextStyle(fontSize: 16,color: Colors.white))
                   ),
@@ -187,7 +187,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                childAspectRatio: 0.7,
+                childAspectRatio: 0.65,
               ),
             ),
           ),

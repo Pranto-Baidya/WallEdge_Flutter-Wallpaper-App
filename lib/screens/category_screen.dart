@@ -99,7 +99,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 return [
                   PopupMenuItem(
                       onTap: (){
-                        Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.');
+                        Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.',null);
                       },
                       child: Text('Change Log',style: TextStyle(fontSize: 16,color: Colors.white))
                   ),

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
+import 'package:wallpaper_manager_plus/wallpaper_manager_plus.dart';
 import '../models/photo_model.dart';
 import '../riverpod/dowload_image_riverpod.dart';
+
+final selectedItemProvider = StateProvider<String>((ref)=>'Home Screen');
+
 
 class ImageScreen extends ConsumerStatefulWidget {
   final PhotoModel photo;
@@ -17,10 +22,119 @@ class ImageScreen extends ConsumerStatefulWidget {
 }
 
 class _ImageScreenState extends ConsumerState<ImageScreen> {
+
+  final DefaultCacheManager cacheManager = DefaultCacheManager();
+  final WallpaperManagerPlus wallpaperManagerPlus = WallpaperManagerPlus();
+
   @override
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.initState();
+  }
+
+  List<String> wallpaperState = ['Home Screen','Lock Screen','Both'];
+
+  Future<void> _setWallpaper(int location)async{
+    try {
+      final file = await cacheManager.getSingleFile(widget.photo.srcOriginal ?? '');
+
+      final result = await wallpaperManagerPlus.setWallpaper(file, location);
+
+      if (location == WallpaperManagerPlus.lockScreen || location == WallpaperManagerPlus.bothScreens) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.orange.shade800,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+            content: Text("Changing the lock screen wallpaper might not be supported on this device. You can still set the wallpaper for your home screen.",style: TextStyle(color: Colors.white),),
+          ),
+        );
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.black,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+            content: Text(result ?? 'Wallpaper set successfully!',style: TextStyle(color: Colors.white),)
+        ),
+      );
+
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+            content: Text('Error setting wallpaper',style: TextStyle(color: Colors.white))
+        ),
+      );
+    }
+  }
+
+  void showSetWallpaperDialogue(){
+   showDialog(
+       context: context,
+       builder: (BuildContext context){
+         return Consumer(
+             builder: (context,ref,_){
+
+               final selectState = ref.watch(selectedItemProvider);
+               final selectNotifier = ref.read(selectedItemProvider.notifier);
+
+               return AlertDialog(
+                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                 backgroundColor: Colors.white,
+                 contentPadding: EdgeInsets.zero,
+                 title: Text('Set Wallpaper',style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500),),
+                 content: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     SizedBox(height: 15,),
+                     ...wallpaperState.map((wallpaper){
+                       return RadioListTile(
+                           fillColor: WidgetStatePropertyAll(Colors.black),
+                           title: Text(wallpaper,style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
+                           value: wallpaper,
+                           groupValue: selectState,
+                           onChanged: (value){
+                             if(value!=null) {
+                               selectNotifier.state = value;
+                             }
+                           }
+                       );
+                     })
+                   ],
+                 ),
+                 actions: [
+                   SizedBox(height: 15,),
+                   TextButton(
+                       onPressed: (){
+                         Navigator.pop(context);
+                       },
+                       child: Text('Cancel',style: TextStyle(color: Colors.black),)
+                   ),
+                   TextButton(
+                       onPressed: (){
+                         if(selectState=='Home Screen'){
+                           _setWallpaper(WallpaperManagerPlus.homeScreen);
+                         }
+                         else if(selectState=='Lock Screen'){
+                           _setWallpaper(WallpaperManagerPlus.lockScreen);
+                         }
+                         else{
+                           _setWallpaper(WallpaperManagerPlus.bothScreens);
+                         }
+                         Navigator.pop(context);
+                       },
+                       child: Text('Set wallpaper',style: TextStyle(color: Colors.black),)
+                   ),
+                 ],
+               );
+             }
+         );
+       }
+   );
   }
 
   @override
@@ -180,7 +294,16 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                             downloadState.isDownloading
                                 ? Column(
                                   children: [
-                                    CircularProgressIndicator(value: downloadState.progress, color: Colors.white),
+                                    SizedBox(height: 10,),
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: CircularProgressIndicator(
+                                        value: downloadState.progress,
+                                        color: Colors.white,
+                                        strokeWidth: 3,
+                                      ),
+                                    ),
                                     SizedBox(height: 10,)
                                   ],
                                 ) : isSaved ? IconButton(onPressed: null, icon: Icon(Icons.download_done, color: Colors.white))
@@ -191,7 +314,7 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                                 }
                               },
                               style: IconButton.styleFrom(padding: EdgeInsets.zero),
-                              icon: Icon(Icons.file_download_outlined, color: Colors.white),
+                              icon: Icon(Icons.file_download_outlined, color: Colors.white,size: 28,),
                             ),
                             Text(
                               downloadState.isDownloading
@@ -204,7 +327,9 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                       },
                     ),
 
-                    _buildColumn(Icons.check_circle_outline, 'Apply', () {}),
+                    _buildColumn(Icons.collections_outlined, 'Apply', () {
+                      showSetWallpaperDialogue();
+                    }),
                     Consumer(
                         builder: (context,ref,_){
                           final favState = ref.watch(favPhotoNotifier);
