@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/specific_category_screen.dart';
 
-import '../widgets/dialogue helper.dart';
-
 class CategoryScreen extends ConsumerStatefulWidget {
   const CategoryScreen({super.key});
 
@@ -87,33 +85,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             ],
           ),
         ),
-        actions: [
-          PopupMenuButton(
-              popUpAnimationStyle: AnimationStyle(
-                  curve: Curves.decelerate
-              ),
-              icon: Icon(Icons.more_vert,color: Colors.black,),
-              menuPadding: EdgeInsets.only(left: 10,right: 20,top: 10,bottom: 10),
-              color: Colors.black,
-              itemBuilder: (context){
-                return [
-                  PopupMenuItem(
-                      onTap: (){
-                        Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.',null);
-                      },
-                      child: Text('Change Log',style: TextStyle(fontSize: 16,color: Colors.white))
-                  ),
-                  PopupMenuItem(
-                      onTap: (){
-
-                      },
-                      child: Text('Future updates',style: TextStyle(fontSize: 16,color: Colors.white))
-                  ),
-                ];
-              }
-          )
-
-        ],
       ),
       body: Column(
         children: [

@@ -31,6 +31,17 @@ class FavPhotoNotifier extends StateNotifier<FavPhotoState>{
 
   FavPhotoNotifier() : super(FavPhotoState());
 
+  Future<void> getSearchedPhotos(String query)async{
+    if(query.isEmpty){
+      return;
+    }
+    final data = state.favPhotos.where((q)=>q.photographer.toLowerCase().startsWith(query.toLowerCase())).toList();
+
+    state = state.copyWith(
+      searchFavPhotos: data
+    );
+  }
+
   Future<void> getAllPhotos()async{
     final data = await dbHelper.getAllPhotos();
 

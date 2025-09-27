@@ -4,9 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/models/photo_model.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
+import 'package:learning_riverpod/riverpod/internet_connectivity_riverpod.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
+import 'package:learning_riverpod/screens/main_screen.dart';
 import 'package:learning_riverpod/widgets/dialogue%20helper.dart';
+import 'package:learning_riverpod/widgets/url_herlper.dart';
 
 final searchProvider = StateProvider<bool>((ref)=>false);
 
@@ -39,12 +42,26 @@ class _HomeState extends ConsumerState<Home> {
     '•  Watch videos and download',
     '•  Improved searching',
     '•  Filtering options',
+    '•  Light and Dark mode support',
     '•  Bug fixes',
     '& many more...'
   ];
 
   @override
   Widget build(BuildContext context) {
+
+    ref.listen<InternetState>(internetProvider, (prev,next){
+      if(next.isConnected){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.black,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+              content: Text('Internet connection restored',style: TextStyle(color: Colors.white),)
+          ),
+        );
+      }
+    });
 
     final isSearching = ref.watch(searchProvider);
 
@@ -57,8 +74,10 @@ class _HomeState extends ConsumerState<Home> {
     final searchNotifier = ref.read(searchWallpaperProvider.notifier);
 
     final width = MediaQuery.of(context).size.width;
+
     final height = MediaQuery.of(context).size.height;
 
+    final connectionState = ref.watch(internetProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -74,6 +93,7 @@ class _HomeState extends ConsumerState<Home> {
                   onPressed:(){
                     ref.read(searchProvider.notifier).state = false;
                     _searchController.clear();
+                    searchState.photos.clear();
                   },
                   icon: Icon(Icons.arrow_back,color: Colors.black,)
               ),
@@ -115,7 +135,7 @@ class _HomeState extends ConsumerState<Home> {
           IconButton(
               onPressed: (){
                 ref.read(searchProvider.notifier).state = true;
-              }, 
+              },
               icon: Icon(Icons.search,color: Colors.black,)
           ),
           PopupMenuButton(
@@ -135,9 +155,8 @@ class _HomeState extends ConsumerState<Home> {
                   ),
                   PopupMenuItem(
                       onTap: (){
-                          Alert.dialogue(context, 'Future updates', futureUpdates.map((i)=>i).join('\n\n').toString(),10);
-
-                      },
+                          Alert.dialogue(context, 'Future updates', futureUpdates.join('\n\n'),10);
+                          },
                       child: Text('Future updates',style: TextStyle(fontSize: 16,color: Colors.white))
                   ),
                 ];
@@ -146,7 +165,22 @@ class _HomeState extends ConsumerState<Home> {
 
         ],
       ),
-      body: RefreshIndicator(
+      body: !connectionState.isConnected?
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,),
+                SizedBox(height: 20,),
+                Text('No internet connection',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
+                SizedBox(height: 10,),
+                Text('Check your network and try again',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
+
+              ],
+            ),
+          )
+      :RefreshIndicator(
         onRefresh: ()async{
           await photoNotifier.fetchInitialPhotos();
         },
@@ -158,9 +192,6 @@ class _HomeState extends ConsumerState<Home> {
 
               if (showData.inProgress) {
                 return const Center(child: CircularProgressIndicator(color: Colors.black,));
-              }
-              if (showData.error != null) {
-                return Center(child: Text(photoState.error!));
               }
 
               return NotificationListener<ScrollNotification>(
@@ -178,6 +209,7 @@ class _HomeState extends ConsumerState<Home> {
                       sliver: SliverGrid(
                         delegate: SliverChildBuilderDelegate(
                               (context, index) {
+
                             final data = showData.photos[index];
                             final heroTag = isSearching ? 'search-${data.id}_$index' : 'home-${data.id}_$index';
 
@@ -214,10 +246,11 @@ class _HomeState extends ConsumerState<Home> {
                                       ),
                                     ),
                                     Positioned(
-                                      top: 5,
-                                      right: 5,
+                                      top: 3,
+                                      right: 0,
                                       child: Consumer(
                                         builder: (context, ref, _) {
+
                                           final favState = ref.watch(favPhotoNotifier);
                                           final favNotifier = ref.read(favPhotoNotifier.notifier);
 
@@ -242,12 +275,67 @@ class _HomeState extends ConsumerState<Home> {
                                         },
                                       ),
                                     ),
-
                                     Positioned(
-                                      bottom: 10,
-                                        left: 10,
-                                        child: Text('By : ${data.photographer}',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),overflow: TextOverflow.ellipsis,)
-                                    )
+                                        top: 3,
+                                        right: 35,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            final overlayEntry = OverlayEntry(
+                                              builder: (context) => Positioned(
+                                                bottom: 100,
+                                                right: 0,
+                                                left: 0,
+                                                child: Material(
+                                                  color: Colors.transparent,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      height: 60,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black,
+                                                        borderRadius: BorderRadius.circular(6),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            offset: Offset(2, 2),
+                                                            spreadRadius: 0,
+                                                            blurRadius: 7,
+                                                            color: Colors.black26
+                                                          )
+                                                        ]
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Text(
+                                                            "Photo Credit :",
+                                                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 15),
+                                                          ),
+                                                          TextButton(
+                                                              onPressed: ()async{
+                                                                await UrlHelper.openUrl(data.photographerUrl??'');
+                                                              }, child: Text(data.photographer,style: TextStyle(color: Colors.blue.shade200,fontWeight: FontWeight.w500,fontSize: 15,decoration: TextDecoration.underline,decorationColor: Colors.blue.shade200,decorationThickness: 1,overflow: TextOverflow.ellipsis),)
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+
+                                            Overlay.of(context).insert(overlayEntry);
+
+                                            Future.delayed(const Duration(seconds: 5), () {
+                                              overlayEntry.remove();
+                                            });
+                                          },
+                                          icon: const Icon(Icons.photo_camera_back, color: Colors.white, size: 28),
+                                        )
+
+
+                                    ),
+
                                   ]
                                 ),
                               ),

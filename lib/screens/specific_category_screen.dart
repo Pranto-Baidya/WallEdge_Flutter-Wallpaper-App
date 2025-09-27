@@ -52,6 +52,7 @@ class _SpecificCategoryScreenState
           statusBarColor: Colors.transparent,
           systemNavigationBarColor: Colors.transparent,
           systemNavigationBarDividerColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark
         ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -151,8 +152,8 @@ class _SpecificCategoryScreenState
                                 ),
                               ),
                               Positioned(
-                                top: 5,
-                                right: 5,
+                                top: 3,
+                                right: 0,
                                 child: Consumer(
                                   builder: (context, ref, _) {
                                     final favState = ref.watch(favPhotoNotifier);
@@ -191,17 +192,65 @@ class _SpecificCategoryScreenState
                                 ),
                               ),
                               Positioned(
-                                left: 10,
-                                bottom: 10,
-                                child: Text(
-                                  'By : ${data.photographer}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
+                                  top: 3,
+                                  right: 35,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      final overlayEntry = OverlayEntry(
+                                        builder: (context) => Positioned(
+                                          bottom: 100,
+                                          right: 0,
+                                          left: 0,
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: 60,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius: BorderRadius.circular(6),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          offset: Offset(2, 2),
+                                                          spreadRadius: 0,
+                                                          blurRadius: 7,
+                                                          color: Colors.black26
+                                                      )
+                                                    ]
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "Photo Credit :",
+                                                      style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 15),
+                                                    ),
+                                                    TextButton(
+                                                        onPressed: (){
+
+                                                        }, child: Text(data.photographer,style: TextStyle(color: Colors.blue.shade200,fontWeight: FontWeight.w500,fontSize: 15,decoration: TextDecoration.underline,decorationColor: Colors.blue.shade200,decorationThickness: 1,overflow: TextOverflow.ellipsis),)
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+
+                                      Overlay.of(context).insert(overlayEntry);
+
+                                      Future.delayed(const Duration(seconds: 5), () {
+                                        overlayEntry.remove();
+                                      });
+                                    },
+                                    icon: const Icon(Icons.photo_camera_back, color: Colors.white, size: 28),
+                                  )
+
+
+                              ),
                             ],
                           ),
                         );

@@ -1,11 +1,12 @@
 
-
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final downloadNotifierProvider = StateNotifierProvider<DownloadNotifier,DownloadState>((ref)=>DownloadNotifier());
 
@@ -41,7 +42,31 @@ class DownloadNotifier extends StateNotifier<DownloadState>{
 
   Dio _dio = Dio();
 
-  DownloadNotifier() : super(DownloadState());
+  DownloadNotifier() : super(DownloadState()){
+   _loadSavedPhotosFromPrefs();
+  }
+
+  Future<void> _loadSavedPhotosFromPrefs()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final value = preferences.getString('save');
+
+    if(value!=null){
+
+      Map<String,dynamic> decoded = jsonDecode(value);
+      Map<int,String> getData = decoded.map((key,value)=>MapEntry(int.parse(key), value.toString()));
+
+      state = state.copyWith(
+        savedPhotos: getData
+      );
+    }
+  }
+
+  Future<void> _savePhotosToPrefs(Map<int,String> photos)async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    Map<String,String> updated = photos.map((key,value)=>MapEntry(key.toString(), value));
+    await preferences.setString('save', jsonEncode(updated));
+  }
+
 
   Future<void> downloadPhoto(String url,int photoId)async{
 
@@ -87,6 +112,7 @@ class DownloadNotifier extends StateNotifier<DownloadState>{
           savedPhotos: updated
       );
 
+      await _savePhotosToPrefs(updated);
       await OpenFile.open(filePath);
 
     }
@@ -107,9 +133,10 @@ class DownloadNotifier extends StateNotifier<DownloadState>{
     final exists = file.existsSync();
 
     if(!exists){
-      Future.microtask(() {
+      Future.microtask(()async{
         final updated = Map<int,String>.from(state.savedPhotos);
         updated.remove(id);
+        await _savePhotosToPrefs(updated);
         state = state.copyWith(savedPhotos: updated);
       });
       return false;

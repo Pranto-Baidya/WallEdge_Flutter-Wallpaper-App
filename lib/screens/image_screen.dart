@@ -5,16 +5,20 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
+import 'package:learning_riverpod/widgets/url_herlper.dart';
 import 'package:wallpaper_manager_plus/wallpaper_manager_plus.dart';
 import '../models/photo_model.dart';
 import '../riverpod/dowload_image_riverpod.dart';
 
-final selectedItemProvider = StateProvider<String>((ref)=>'Home Screen');
+enum WallpaperOptions {Home, Lock, Both}
 
+final selectedItemProvider = StateProvider<WallpaperOptions>((ref)=>WallpaperOptions.Home);
 
 class ImageScreen extends ConsumerStatefulWidget {
+
   final PhotoModel photo;
   final String heroTag;
+
   const ImageScreen({required this.heroTag,required this.photo, super.key});
 
   @override
@@ -32,7 +36,6 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
     super.initState();
   }
 
-  List<String> wallpaperState = ['Home Screen','Lock Screen','Both'];
 
   Future<void> _setWallpaper(int location)async{
     try {
@@ -91,10 +94,17 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                    mainAxisSize: MainAxisSize.min,
                    children: [
                      SizedBox(height: 15,),
-                     ...wallpaperState.map((wallpaper){
+                     ...WallpaperOptions.values.map((wallpaper){
                        return RadioListTile(
                            fillColor: WidgetStatePropertyAll(Colors.black),
-                           title: Text(wallpaper,style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
+                           title: wallpaper.name == 'Home'?
+                            Text('Home Screen',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),)
+
+                           :wallpaper.name=='Lock'?
+                            Text('Lock Screen',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),)
+
+                           :Text('Both',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
+
                            value: wallpaper,
                            groupValue: selectState,
                            onChanged: (value){
@@ -116,15 +126,17 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                    ),
                    TextButton(
                        onPressed: (){
-                         if(selectState=='Home Screen'){
-                           _setWallpaper(WallpaperManagerPlus.homeScreen);
-                         }
-                         else if(selectState=='Lock Screen'){
-                           _setWallpaper(WallpaperManagerPlus.lockScreen);
-                         }
-                         else{
-                           _setWallpaper(WallpaperManagerPlus.bothScreens);
-                         }
+                         switch(selectState){
+                           case WallpaperOptions.Home :
+                             _setWallpaper(WallpaperManagerPlus.homeScreen);
+                             break;
+                           case WallpaperOptions.Lock :
+                             _setWallpaper(WallpaperManagerPlus.lockScreen);
+                             break;
+                           case WallpaperOptions.Both :
+                             _setWallpaper(WallpaperManagerPlus.bothScreens);
+                             break;
+                           }
                          Navigator.pop(context);
                        },
                        child: Text('Set wallpaper',style: TextStyle(color: Colors.black),)
@@ -251,7 +263,9 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                                               ),
                                               const Spacer(),
                                               TextButton(
-                                                onPressed: () {},
+                                                onPressed: ()async {
+                                                 await UrlHelper.openUrl(widget.photo.photographerUrl??'');
+                                                },
                                                 style: TextButton.styleFrom(padding: EdgeInsets.zero),
                                                 child: const Text(
                                                   'Click here',
@@ -322,6 +336,7 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                               style: const TextStyle(color: Colors.white, fontSize: 14),
                             ),
                             const SizedBox(height: 10),
+
                           ],
                         );
                       },
@@ -404,7 +419,7 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
             ),
           ),
           const Spacer(),
-          Text(
+          SelectableText(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w500,
