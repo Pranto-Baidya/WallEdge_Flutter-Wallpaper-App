@@ -45,6 +45,7 @@ class PhotoState {
 }
 
 class PhotoNotifier extends StateNotifier<PhotoState> {
+
   final ApiService apiService = ApiService();
 
   PhotoNotifier() : super(PhotoState());
@@ -85,7 +86,7 @@ class PhotoNotifier extends StateNotifier<PhotoState> {
         error: null,
       );
 
-      final newData = await apiService.fetchNextPage(state.nextPage!);
+      final newData = await apiService.fetchNextPage(state.nextPage ?? '');
 
       state = state.copyWith(
         photos: [...state.photos, ...newData.photos],
@@ -93,7 +94,8 @@ class PhotoNotifier extends StateNotifier<PhotoState> {
         isLoadingMore: false,
         error: null,
       );
-    } catch (e) {
+    }
+    catch (e) {
       state = state.copyWith(isLoadingMore: false, error: e.toString());
     }
   }
@@ -138,7 +140,7 @@ class PhotoNotifier extends StateNotifier<PhotoState> {
           category: category
       );
 
-      final data = await apiService.getMoreCategoryPhotos(state.nextPage!);
+      final data = await apiService.getMoreCategoryPhotos(state.nextPage??'');
 
       state = state.copyWith(
           photos: [...state.photos, ...data.photos],
@@ -181,7 +183,7 @@ class PhotoNotifier extends StateNotifier<PhotoState> {
     try{
       state = state.copyWith(isLoadingMore: true,query: query,category: '',error: null);
 
-      final data = await apiService.searchMorePhotos(state.nextPage!);
+      final data = await apiService.searchMorePhotos(state.nextPage??'');
 
       state = state.copyWith(
         photos: [...state.photos,...data.photos],

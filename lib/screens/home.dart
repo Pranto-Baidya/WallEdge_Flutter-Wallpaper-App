@@ -2,12 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:learning_riverpod/models/photo_model.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/internet_connectivity_riverpod.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
-import 'package:learning_riverpod/screens/main_screen.dart';
 import 'package:learning_riverpod/widgets/dialogue%20helper.dart';
 import 'package:learning_riverpod/widgets/url_herlper.dart';
 
@@ -35,7 +33,6 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   final TextEditingController _searchController = TextEditingController();
-
 
   List<String> futureUpdates = [
     '•  More polished UI and UX',
@@ -176,7 +173,6 @@ class _HomeState extends ConsumerState<Home> {
                 Text('No internet connection',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
                 SizedBox(height: 10,),
                 Text('Check your network and try again',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
-
               ],
             ),
           )
@@ -196,7 +192,7 @@ class _HomeState extends ConsumerState<Home> {
 
               return NotificationListener<ScrollNotification>(
                 onNotification: (scrollInfo) {
-                  if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !photoState.isLoadingMore) {
+                  if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !showData.isLoadingMore) {
                     isSearching? searchNotifier.getMoreSearchedPhotos(_searchController.text) : photoNotifier.fetchMorePhotos();
                   }
                   return false;
@@ -211,7 +207,7 @@ class _HomeState extends ConsumerState<Home> {
                               (context, index) {
 
                             final data = showData.photos[index];
-                            final heroTag = isSearching ? 'search-${data.id}_$index' : 'home-${data.id}_$index';
+                            final heroTag = isSearching ? 'search-${data.id}' : 'home-${data.id}';
 
                             return Card(
                               color: Colors.white,

@@ -114,10 +114,10 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
           )
         ],
       ),
-      body: showData.isEmpty
+      body:  showData.isEmpty
           ? Center(
         child: Text(
-          "No favorites yet",
+          !isSearching ? "No favorites yet" : _searchController.text.isEmpty ? "" : "No results found",
           style: TextStyle(fontSize: 18, color: Colors.black),
         ),
       )
@@ -131,7 +131,6 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
               delegate: SliverChildBuilderDelegate((context, index) {
 
                   final data = showData[index];
-                  final heroTag = isSearching? 'search_${data.id}' : 'fav_${data.id}';
 
                   return Card(
                     color: Colors.white,
@@ -155,7 +154,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Hero(
-                              tag: heroTag,
+                              tag: data.id.toString(),
                               child: CachedNetworkImage(
                                 imageUrl: data.srcOriginal ?? "",
                                 fadeInDuration:

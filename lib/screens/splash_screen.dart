@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/main_screen.dart';
 
-import 'home.dart';
-
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -46,7 +44,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             SizedBox(height: 20,),
             Text('WallEdge',style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500),),
             SizedBox(height: 13,),
-            Text('A massive collection of images for you',style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w500),),
+            Text('A massive collection of images for you',style: TextStyle(color: Colors.black,fontSize: 15,fontWeight: FontWeight.w500),),
           ],
         ),
       ),

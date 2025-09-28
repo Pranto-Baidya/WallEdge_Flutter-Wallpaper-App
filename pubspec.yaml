@@ -49,6 +49,7 @@ dependencies:
   wallpaper_manager_plus: ^1.0.3
   flutter_cache_manager: ^3.4.1
   url_launcher: ^6.3.2
+  flutter_dotenv: ^6.0.0
 
 
 dev_dependencies:
@@ -82,6 +83,7 @@ flutter:
   assets:
     - assets/icon.png
     - assets/no_internet.png
+    - api_key/api_key.env
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

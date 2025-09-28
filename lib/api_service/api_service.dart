@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:learning_riverpod/models/pagination_model.dart';
 
 class ApiService {
 
-  static const String apiKey = 'zfHJHKlR0IdkBiz6iiY9nyadPf4uFggIUIkHFy1HYoA8bwyffBkdV9MV';
+  static final apiKey = dotenv.env['ApiKey'];
+
   static const String baseUrl = 'https://api.pexels.com/v1/curated';
 
   Future<PaginationModel> fetchPhotos({int page = 1, int perPage = 20}) async {
@@ -12,7 +14,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: {'Authorization': apiKey},
+        headers: {'Authorization': apiKey!},
       );
 
       if (response.statusCode == 200) {
@@ -31,7 +33,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(nextPageUrl),
-        headers: {'Authorization': apiKey},
+        headers: {'Authorization': apiKey!},
       );
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -53,7 +55,7 @@ class ApiService {
       final response = await http.get(
           Uri.parse(url),
           headers: {
-            'Authorization': apiKey
+            'Authorization': apiKey!
           }
       );
       if (response.statusCode == 200) {
@@ -74,7 +76,7 @@ class ApiService {
       final response = await http.get(
           Uri.parse(nextPage),
           headers: {
-            'Authorization': apiKey
+            'Authorization': apiKey!
           }
       );
       if (response.statusCode == 200) {
@@ -96,7 +98,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: {'Authorization': apiKey},
+        headers: {'Authorization': apiKey!},
       );
 
       if (response.statusCode == 200) {
@@ -117,7 +119,7 @@ class ApiService {
       final response = await http.get(
           Uri.parse(nextPage),
           headers: {
-            'Authorization': apiKey
+            'Authorization': apiKey!
           }
       );
 

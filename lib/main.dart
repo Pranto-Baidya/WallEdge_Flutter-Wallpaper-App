@@ -1,11 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:learning_riverpod/screens/main_screen.dart';
 import 'package:learning_riverpod/screens/splash_screen.dart';
 
-main(){
+main()async{
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: 'api_key/api_key.env');
   runApp(ProviderScope(child: const MyApp()));
 }
 
