@@ -26,6 +26,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
         systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,

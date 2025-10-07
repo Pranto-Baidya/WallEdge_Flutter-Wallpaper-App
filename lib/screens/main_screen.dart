@@ -45,28 +45,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             ]
         ),
         child: NavigationBar(
-          labelPadding: EdgeInsets.only(top: 5),
+
+          labelPadding: EdgeInsets.zero,
           labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: 14,fontWeight: FontWeight.w500)),
-          maintainBottomViewPadding: true,
+          maintainBottomViewPadding: false,
+          height: 55,
           backgroundColor: Colors.white,
           selectedIndex: count,
-          indicatorColor: Colors.black,
+          indicatorColor: Colors.transparent,
           onDestinationSelected: (value){
             ref.read(countProvider.notifier).state = value;
           },
             destinations: [
               NavigationDestination(
-                  selectedIcon: Icon(Icons.grid_view_rounded,color: Colors.white,),
+                  selectedIcon: Icon(Icons.grid_view_rounded,color: Colors.black,),
                   icon: Icon(Icons.grid_view,color: Colors.black,),
                   label: 'Wallpapers'
               ),
               NavigationDestination(
-                  selectedIcon: Icon(Icons.dashboard,color: Colors.white,),
-                  icon: Icon(Icons.dashboard_outlined,color: Colors.black,),
+                  selectedIcon: Icon(Icons.category,color: Colors.black,),
+                  icon: Icon(Icons.category_outlined,color: Colors.black,),
                   label: 'Categories'
               ),
               NavigationDestination(
-                  selectedIcon: Icon(Icons.favorite,color: Colors.white,),
+                  selectedIcon: Icon(Icons.favorite,color: Colors.black,),
                   icon: Icon(Icons.favorite_border,color: Colors.black,),
                   label: 'Favorites'
               ),

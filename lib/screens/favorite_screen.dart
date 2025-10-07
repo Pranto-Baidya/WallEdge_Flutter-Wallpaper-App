@@ -40,7 +40,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
     final showData = isSearching? favState.searchFavPhotos : favState.favPhotos;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         toolbarHeight: 50,
         title: isSearching?
@@ -126,7 +126,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
         slivers: [
           SliverPadding(
             padding: EdgeInsets.symmetric(
-                horizontal: width * 0.02, vertical: height * 0.02),
+                horizontal: width * 0.03, vertical: height * 0.02),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
 
@@ -134,10 +134,10 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
 
                   return Card(
                     color: Colors.white,
-                    shadowColor: Colors.black45,
-                    elevation: 8,
+                    shadowColor: Colors.black54,
+                    elevation: 5,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: GestureDetector(
                       onTap: () {
@@ -152,7 +152,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                         fit: StackFit.expand,
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(20),
                             child: Hero(
                               tag: data.id.toString(),
                               child: CachedNetworkImage(
@@ -172,8 +172,8 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                             ),
                           ),
                           Positioned(
-                            top: 3,
-                            right: 0,
+                            top: 6,
+                            right: 6,
                             child: IconButton(
                               onPressed: () async {
                                 await favNotifier.toggleFavPhoto(data);
@@ -185,66 +185,6 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                               ),
                             ),
                           ),
-                          Positioned(
-                              top: 3,
-                              right: 35,
-                              child: IconButton(
-                                onPressed: () {
-                                  final overlayEntry = OverlayEntry(
-                                    builder: (context) => Positioned(
-                                      bottom: 100,
-                                      right: 0,
-                                      left: 0,
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 30),
-                                          child: Container(
-                                            width: double.infinity,
-                                            height: 60,
-                                            decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius: BorderRadius.circular(6),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                      offset: Offset(2, 2),
-                                                      spreadRadius: 0,
-                                                      blurRadius: 7,
-                                                      color: Colors.black26
-                                                  )
-                                                ]
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  "Photo Credit :",
-                                                  style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 15),
-                                                ),
-                                                TextButton(
-                                                    onPressed: (){
-
-                                                    }, child: Text(data.photographer,style: TextStyle(color: Colors.blue.shade200,fontWeight: FontWeight.w500,fontSize: 15,decoration: TextDecoration.underline,decorationColor: Colors.blue.shade200,decorationThickness: 1,overflow: TextOverflow.ellipsis),)
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-
-                                  Overlay.of(context).insert(overlayEntry);
-
-                                  Future.delayed(const Duration(seconds: 5), () {
-                                    overlayEntry.remove();
-                                  });
-                                },
-                                icon: const Icon(Icons.photo_camera_back, color: Colors.white, size: 28),
-                              )
-
-
-                          ),
                         ],
                       ),
                     ),
@@ -254,9 +194,9 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.65,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 10,
+                childAspectRatio: 0.6,
               ),
             ),
           ),

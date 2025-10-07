@@ -6,6 +6,7 @@ import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/internet_connectivity_riverpod.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
+import 'package:learning_riverpod/screens/video_screen.dart';
 import 'package:learning_riverpod/widgets/dialogue%20helper.dart';
 import 'package:learning_riverpod/widgets/url_herlper.dart';
 
@@ -77,7 +78,7 @@ class _HomeState extends ConsumerState<Home> {
     final connectionState = ref.watch(internetProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         toolbarHeight: 50,
         title: isSearching?
@@ -106,7 +107,7 @@ class _HomeState extends ConsumerState<Home> {
           onChanged: (value){
             ref.read(searchWallpaperProvider.notifier).searchWallpapers(value);
           },
-        ):Text('WallEdge',style: TextStyle(fontWeight: FontWeight.w500,fontSize: 28,color: Colors.black),),
+        ):Text('WallEdge',style: TextStyle(fontWeight: FontWeight.w500,fontSize: 30,color: Colors.black),),
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarIconBrightness: Brightness.dark,
@@ -187,7 +188,17 @@ class _HomeState extends ConsumerState<Home> {
             final showData = isSearching? searchState : photoState;
 
               if (showData.inProgress) {
-                return const Center(child: CircularProgressIndicator(color: Colors.black,));
+                return Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                     const Center(child: CircularProgressIndicator(color: Colors.black,)),
+                      SizedBox(height: 15,),
+                      const Text('Loading...',style: TextStyle(color: Colors.black,fontSize: 15),)
+                    ],
+                  ),
+                );
               }
 
               return NotificationListener<ScrollNotification>(
@@ -201,7 +212,7 @@ class _HomeState extends ConsumerState<Home> {
                   physics: ClampingScrollPhysics(),
                   slivers: [
                     SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: width*0.02, vertical: height*0.02),
+                      padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
                       sliver: SliverGrid(
                         delegate: SliverChildBuilderDelegate(
                               (context, index) {
@@ -211,10 +222,10 @@ class _HomeState extends ConsumerState<Home> {
 
                             return Card(
                               color: Colors.white,
-                              shadowColor: Colors.black45,
-                              elevation: 8,
+                              shadowColor: Colors.black54,
+                              elevation: 5,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: GestureDetector(
                                 onTap: (){
@@ -227,7 +238,7 @@ class _HomeState extends ConsumerState<Home> {
                                   fit: StackFit.expand,
                                   children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(20),
                                       child: Hero(
                                         tag: heroTag,
                                         child: CachedNetworkImage(
@@ -242,8 +253,8 @@ class _HomeState extends ConsumerState<Home> {
                                       ),
                                     ),
                                     Positioned(
-                                      top: 3,
-                                      right: 0,
+                                      top: 6,
+                                      right: 6,
                                       child: Consumer(
                                         builder: (context, ref, _) {
 
@@ -271,66 +282,6 @@ class _HomeState extends ConsumerState<Home> {
                                         },
                                       ),
                                     ),
-                                    Positioned(
-                                        top: 3,
-                                        right: 35,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            final overlayEntry = OverlayEntry(
-                                              builder: (context) => Positioned(
-                                                bottom: 100,
-                                                right: 0,
-                                                left: 0,
-                                                child: Material(
-                                                  color: Colors.transparent,
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                                                    child: Container(
-                                                      width: double.infinity,
-                                                      height: 60,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.black,
-                                                        borderRadius: BorderRadius.circular(6),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            offset: Offset(2, 2),
-                                                            spreadRadius: 0,
-                                                            blurRadius: 7,
-                                                            color: Colors.black26
-                                                          )
-                                                        ]
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          Text(
-                                                            "Photo Credit :",
-                                                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 15),
-                                                          ),
-                                                          TextButton(
-                                                              onPressed: ()async{
-                                                                await UrlHelper.openUrl(data.photographerUrl??'');
-                                                              }, child: Text(data.photographer,style: TextStyle(color: Colors.blue.shade200,fontWeight: FontWeight.w500,fontSize: 15,decoration: TextDecoration.underline,decorationColor: Colors.blue.shade200,decorationThickness: 1,overflow: TextOverflow.ellipsis),)
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-
-                                            Overlay.of(context).insert(overlayEntry);
-
-                                            Future.delayed(const Duration(seconds: 5), () {
-                                              overlayEntry.remove();
-                                            });
-                                          },
-                                          icon: const Icon(Icons.photo_camera_back, color: Colors.white, size: 28),
-                                        )
-
-
-                                    ),
 
                                   ]
                                 ),
@@ -341,9 +292,9 @@ class _HomeState extends ConsumerState<Home> {
                         ),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 0.65
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 0.6
                         ),
                       ),
                     ),
@@ -360,6 +311,17 @@ class _HomeState extends ConsumerState<Home> {
                 ),
               );
               },
+        ),
+      ),
+
+      floatingActionButton: Container(
+        margin: EdgeInsets.only(right: 10,bottom: 10),
+        child: FloatingActionButton(
+            onPressed: (){
+             Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoFeedScreen()));
+            },
+          child: Icon(Icons.play_arrow,color: Colors.black,size: 35,),
+          backgroundColor: Colors.white,
         ),
       ),
 

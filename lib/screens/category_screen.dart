@@ -54,7 +54,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         toolbarHeight: 50,
         title: const Text(
@@ -111,7 +111,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     elevation: 8,
                     shadowColor: Colors.black54,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Stack(

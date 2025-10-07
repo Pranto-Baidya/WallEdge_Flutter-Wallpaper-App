@@ -50,6 +50,11 @@ dependencies:
   flutter_cache_manager: ^3.4.1
   url_launcher: ^6.3.2
   flutter_dotenv: ^6.0.0
+  video_player: ^2.10.0
+  chewie: ^1.13.0
+  share_plus: ^12.0.0
+  gallery_saver_plus: ^3.2.9
+
 
 
 dev_dependencies:

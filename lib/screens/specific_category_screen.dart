@@ -39,7 +39,7 @@ class _SpecificCategoryScreenState
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(
           '${widget.categoryName} wallpapers',
@@ -88,8 +88,16 @@ class _SpecificCategoryScreenState
               if (photoState.inProgress)
                 const SliverFillRemaining(
                   child: Center(
-                    child: CircularProgressIndicator(color: Colors.black),
-                  ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Center(child: CircularProgressIndicator(color: Colors.black,)),
+                        SizedBox(height: 15,),
+                        const Text('Loading...',style: TextStyle(color: Colors.black,fontSize: 15),)
+                      ],
+                    ),
+                  )
                 )
 
               else if (photoState.photos.isEmpty)
@@ -99,13 +107,13 @@ class _SpecificCategoryScreenState
 
               else
                 SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: width*0.02, vertical: height*0.02),
+                  padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
                   sliver: SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      childAspectRatio: 0.65,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 0.6,
                     ),
                     delegate: SliverChildBuilderDelegate(
                           (context, index) {
@@ -115,7 +123,7 @@ class _SpecificCategoryScreenState
                           shadowColor: Colors.black45,
                           elevation: 5,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Stack(
                             fit: StackFit.expand,
@@ -133,7 +141,7 @@ class _SpecificCategoryScreenState
                                   );
                                 },
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(20),
                                   child: Hero(
                                     tag: data.id.toString(),
                                     child: CachedNetworkImage(
@@ -152,8 +160,8 @@ class _SpecificCategoryScreenState
                                 ),
                               ),
                               Positioned(
-                                top: 3,
-                                right: 0,
+                                top: 6,
+                                right: 6,
                                 child: Consumer(
                                   builder: (context, ref, _) {
                                     final favState = ref.watch(favPhotoNotifier);
@@ -190,66 +198,6 @@ class _SpecificCategoryScreenState
                                     );
                                   },
                                 ),
-                              ),
-                              Positioned(
-                                  top: 3,
-                                  right: 35,
-                                  child: IconButton(
-                                    onPressed: () {
-                                      final overlayEntry = OverlayEntry(
-                                        builder: (context) => Positioned(
-                                          bottom: 100,
-                                          right: 0,
-                                          left: 0,
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                                              child: Container(
-                                                width: double.infinity,
-                                                height: 60,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius: BorderRadius.circular(6),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                          offset: Offset(2, 2),
-                                                          spreadRadius: 0,
-                                                          blurRadius: 7,
-                                                          color: Colors.black26
-                                                      )
-                                                    ]
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "Photo Credit :",
-                                                      style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 15),
-                                                    ),
-                                                    TextButton(
-                                                        onPressed: (){
-
-                                                        }, child: Text(data.photographer,style: TextStyle(color: Colors.blue.shade200,fontWeight: FontWeight.w500,fontSize: 15,decoration: TextDecoration.underline,decorationColor: Colors.blue.shade200,decorationThickness: 1,overflow: TextOverflow.ellipsis),)
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-
-                                      Overlay.of(context).insert(overlayEntry);
-
-                                      Future.delayed(const Duration(seconds: 5), () {
-                                        overlayEntry.remove();
-                                      });
-                                    },
-                                    icon: const Icon(Icons.photo_camera_back, color: Colors.white, size: 28),
-                                  )
-
-
                               ),
                             ],
                           ),
