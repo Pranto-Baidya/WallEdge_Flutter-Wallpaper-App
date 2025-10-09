@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+
+final ThemeData lightTheme = ThemeData(
+  brightness: Brightness.light,
+  scaffoldBackgroundColor: Colors.grey.shade100,
+  primaryColor: Colors.white,
+  colorScheme: const ColorScheme.light(
+    primary: Colors.white,
+    secondary: Colors.white,
+    surface: Colors.white,
+    background: Colors.white,
+    onPrimary: Colors.black,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onBackground: Colors.black,
+  ),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.white,
+    foregroundColor: Colors.black,
+    iconTheme: IconThemeData(color: Colors.black),
+    titleTextStyle: TextStyle(
+      color: Colors.black,
+      fontWeight: FontWeight.w500,
+      fontSize: 20,
+    ),
+    elevation: 0,
+  ),
+  iconTheme: const IconThemeData(color: Colors.black),
+  textTheme: const TextTheme(
+    bodyLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    bodyMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    bodySmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.w500,fontSize: 25),
+    titleMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    titleSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    labelLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    labelMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    labelSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    filled: true,
+    fillColor: Colors.white,
+    border: OutlineInputBorder(),
+  ),
+  cardColor: Colors.white,
+  dividerColor: Colors.black12,
+);
+
+final ThemeData darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: Color(0xff090909),
+  primaryColor: Colors.black,
+  colorScheme: const ColorScheme.dark(
+    primary: Colors.black,
+    secondary: Colors.black,
+    surface: Colors.black,
+    background: Colors.black,
+    onPrimary: Colors.white,
+    onSecondary: Colors.white,
+    onSurface: Colors.white,
+    onBackground: Colors.white,
+  ),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.black,
+    foregroundColor: Colors.white,
+    iconTheme: IconThemeData(color: Colors.white),
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.w500,
+      fontSize: 20,
+    ),
+    elevation: 0,
+  ),
+  iconTheme: const IconThemeData(color: Colors.white),
+  textTheme: const TextTheme(
+    bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    bodyMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    bodySmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w500,fontSize: 25),
+    titleMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    titleSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    labelLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    labelMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+    labelSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    filled: true,
+    fillColor: Colors.black,
+    border: OutlineInputBorder(),
+  ),
+  cardColor: Colors.black,
+  dividerColor: Colors.white12,
+);

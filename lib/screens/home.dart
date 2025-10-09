@@ -4,13 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/internet_connectivity_riverpod.dart';
+import 'package:learning_riverpod/riverpod/theme_riverpod.dart';
+import 'package:learning_riverpod/screens/about_app.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
 import 'package:learning_riverpod/screens/video_screen.dart';
 import 'package:learning_riverpod/widgets/dialogue%20helper.dart';
-import 'package:learning_riverpod/widgets/url_herlper.dart';
 
 final searchProvider = StateProvider<bool>((ref)=>false);
+final searchForBodyProvider = StateProvider<bool>((ref)=>false);
 
 final searchWallpaperProvider = StateNotifierProvider<PhotoNotifier,PhotoState>((ref)=>PhotoNotifier());
 
@@ -35,16 +37,6 @@ class _HomeState extends ConsumerState<Home> {
 
   final TextEditingController _searchController = TextEditingController();
 
-  List<String> futureUpdates = [
-    '•  More polished UI and UX',
-    '•  Watch videos and download',
-    '•  Improved searching',
-    '•  Filtering options',
-    '•  Light and Dark mode support',
-    '•  Bug fixes',
-    '& many more...'
-  ];
-
   @override
   Widget build(BuildContext context) {
 
@@ -52,16 +44,18 @@ class _HomeState extends ConsumerState<Home> {
       if(next.isConnected){
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               behavior: SnackBarBehavior.floating,
               margin: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-              content: Text('Internet connection restored',style: TextStyle(color: Colors.white),)
+              content: Text('Internet connection restored',style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)
           ),
         );
       }
     });
 
     final isSearching = ref.watch(searchProvider);
+
+    final isSearchingForBody = ref.watch(searchForBodyProvider);
 
     final photoState = ref.watch(photoNotifierProvider);
 
@@ -77,85 +71,109 @@ class _HomeState extends ConsumerState<Home> {
 
     final connectionState = ref.watch(internetProvider);
 
+    final isDark = ref.watch(themeProvider)==ThemeMode.dark;
+
+    var theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 50,
+        toolbarHeight: 60,
         title: isSearching?
         TextField(
           autofocus: true,
           controller: _searchController,
-          cursorColor: Colors.black,
+          cursorColor: theme.colorScheme.onPrimary,
           decoration: InputDecoration(
               prefixIcon: IconButton(
-                  onPressed:(){
+                  onPressed: (){
                     ref.read(searchProvider.notifier).state = false;
+                    ref.read(searchForBodyProvider.notifier).state = false;
                     _searchController.clear();
-                    searchState.photos.clear();
                   },
-                  icon: Icon(Icons.arrow_back,color: Colors.black,)
+                  icon: Icon(Icons.arrow_back,color: theme.colorScheme.onPrimary,)
               ),
               hintText: 'Search for wallpapers',
-              hintStyle: TextStyle(color: Colors.black87),
+              hintStyle: TextStyle(color: theme.colorScheme.onPrimary.withOpacity(0.7)),
               border: OutlineInputBorder(
-                borderSide: BorderSide.none
+                  borderSide: BorderSide.none
               ),
-             enabledBorder: OutlineInputBorder(
-               borderSide: BorderSide.none
-             )
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none
+              )
           ),
-          onChanged: (value){
-            ref.read(searchWallpaperProvider.notifier).searchWallpapers(value);
+          onChanged: (value) async {
+            if (value.trim().isEmpty) {
+              ref.read(searchForBodyProvider.notifier).state = false;
+              return;
+            }
+
+            ref.read(searchForBodyProvider.notifier).state = true;
+            await ref.read(searchWallpaperProvider.notifier).searchWallpapers(value);
           },
-        ):Text('WallEdge',style: TextStyle(fontWeight: FontWeight.w500,fontSize: 30,color: Colors.black),),
+
+        ):Row(
+          children: [
+            isDark?ClipOval(child: Image.asset('assets/wIcon.png',fit: BoxFit.cover,height: 45,width: 45,))
+                :ClipOval(child: Image.asset('assets/icon.png',fit: BoxFit.cover,height: 45,width: 45,)),
+            SizedBox(width: 10,),
+            Text('WallEdge',style: theme.textTheme.titleLarge),
+          ],
+        ),
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
+          statusBarIconBrightness: isDark? Brightness.light: Brightness.dark,
           statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarColor: isDark? Colors.black:Colors.white,
           systemNavigationBarDividerColor: Colors.transparent,
         ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                spreadRadius: 0,
-                blurRadius: 3,
-                offset: Offset(0, 1)
-              )
-            ]
+              color: theme.cardColor,
+              boxShadow: [
+                BoxShadow(
+                    color: theme.dividerColor,
+                    spreadRadius: 0,
+                    blurRadius: 3,
+                    offset: Offset(0, 1)
+                )
+              ]
           ),
         ),
         actions: [
+          IconButton(
+              onPressed: (){
+                ref.read(themeProvider.notifier).setTheme(!isDark);
+              },
+              icon: isDark? Icon(Icons.wb_sunny_outlined,color: theme.iconTheme.color,) : Icon(Icons.dark_mode_outlined,color: theme.iconTheme.color)
+          ),
           isSearching?SizedBox.shrink():
           IconButton(
               onPressed: (){
                 ref.read(searchProvider.notifier).state = true;
               },
-              icon: Icon(Icons.search,color: Colors.black,)
+              icon: Icon(Icons.search,color: theme.iconTheme.color)
           ),
           PopupMenuButton(
               popUpAnimationStyle: AnimationStyle(
                   curve: Curves.decelerate
               ),
-              icon: Icon(Icons.more_vert,color: Colors.black,),
+              icon: Icon(Icons.more_vert,color: theme.iconTheme.color),
               menuPadding: EdgeInsets.only(left: 10,right: 20,top: 10,bottom: 10),
-              color: Colors.black,
+              color: theme.cardColor,
               itemBuilder: (context){
                 return [
                   PopupMenuItem(
                       onTap: (){
                         Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.',null);
                       },
-                      child: Text('Change Log',style: TextStyle(fontSize: 16,color: Colors.white))
+                      child: Text('Change Log',style: TextStyle(fontSize: 16,color: theme.colorScheme.onPrimary))
                   ),
                   PopupMenuItem(
                       onTap: (){
-                          Alert.dialogue(context, 'Future updates', futureUpdates.join('\n\n'),10);
-                          },
-                      child: Text('Future updates',style: TextStyle(fontSize: 16,color: Colors.white))
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>AboutApp()));
+                      },
+                      child: Text('About app',style: TextStyle(fontSize: 16,color: theme.colorScheme.onPrimary))
                   ),
                 ];
               }
@@ -164,77 +182,78 @@ class _HomeState extends ConsumerState<Home> {
         ],
       ),
       body: !connectionState.isConnected?
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,),
-                SizedBox(height: 20,),
-                Text('No internet connection',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
-                SizedBox(height: 10,),
-                Text('Check your network and try again',style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.w500),),
-              ],
-            ),
-          )
-      :RefreshIndicator(
+      Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            isDark? Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,)
+                :Image.asset('assets/noIn.png',fit: BoxFit.contain,width: 100,height: 100,),
+            SizedBox(height: 20,),
+            Text('No internet connection',style: theme.textTheme.bodyLarge,),
+            SizedBox(height: 10,),
+            Text('Check your network and try again',style: theme.textTheme.bodyLarge,),
+          ],
+        ),
+      )
+          :RefreshIndicator(
         onRefresh: ()async{
           await photoNotifier.fetchInitialPhotos();
         },
-        backgroundColor: Colors.black,
-        color: Colors.white,
+        backgroundColor: isDark? Colors.white:Colors.black,
+        color: isDark? Colors.black:Colors.white,
         child: Builder(
           builder: (context) {
-            final showData = isSearching? searchState : photoState;
+            final showData = isSearchingForBody? searchState : photoState;
 
-              if (showData.inProgress) {
-                return Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                     const Center(child: CircularProgressIndicator(color: Colors.black,)),
-                      SizedBox(height: 15,),
-                      const Text('Loading...',style: TextStyle(color: Colors.black,fontSize: 15),)
-                    ],
-                  ),
-                );
-              }
+            if (showData.inProgress) {
+              return Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
+                    SizedBox(height: 15,),
+                    Text('Loading...',style: theme.textTheme.bodyMedium,)
+                  ],
+                ),
+              );
+            }
 
-              return NotificationListener<ScrollNotification>(
-                onNotification: (scrollInfo) {
-                  if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !showData.isLoadingMore) {
-                    isSearching? searchNotifier.getMoreSearchedPhotos(_searchController.text) : photoNotifier.fetchMorePhotos();
-                  }
-                  return false;
-                },
-                child: CustomScrollView(
-                  physics: ClampingScrollPhysics(),
-                  slivers: [
-                    SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
-                      sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                              (context, index) {
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollInfo) {
+                if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !showData.isLoadingMore) {
+                  isSearching? searchNotifier.getMoreSearchedPhotos(_searchController.text) : photoNotifier.fetchMorePhotos();
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                physics: ClampingScrollPhysics(),
+                slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
+                    sliver: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
 
-                            final data = showData.photos[index];
-                            final heroTag = isSearching ? 'search-${data.id}' : 'home-${data.id}';
+                          final data = showData.photos[index];
+                          final heroTag = isSearching ? 'search-${data.id}' : 'home-${data.id}';
 
-                            return Card(
-                              color: Colors.white,
-                              shadowColor: Colors.black54,
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ImageScreen(
-                                      photo: data,
-                                      heroTag: heroTag,
-                                  )));
-                                },
-                                child: Stack(
+                          return Card(
+                            color: theme.cardColor,
+                            shadowColor: isDark? Colors.white12 : Colors.black54,
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: GestureDetector(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>ImageScreen(
+                                  photo: data,
+                                  heroTag: heroTag,
+                                )));
+                              },
+                              child: Stack(
                                   fit: StackFit.expand,
                                   children: [
                                     ClipRRect(
@@ -246,14 +265,14 @@ class _HomeState extends ConsumerState<Home> {
                                           fadeInDuration: const Duration(milliseconds: 500),
                                           fit: BoxFit.cover,
                                           placeholder: (context,url){
-                                            return CachedNetworkImage(imageUrl : data.srcMedium ?? '',fit: BoxFit.cover,);
-                                            },
+                                            return Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,));
+                                          },
                                           errorWidget: (context,error,st)=> const Icon(Icons.broken_image_outlined),
                                         ),
                                       ),
                                     ),
                                     Positioned(
-                                      top: 6,
+                                      bottom: 6,
                                       right: 6,
                                       child: Consumer(
                                         builder: (context, ref, _) {
@@ -274,7 +293,7 @@ class _HomeState extends ConsumerState<Home> {
                                               child: Icon(
                                                 isFav ? Icons.favorite : Icons.favorite_border,
                                                 key: ValueKey(isFav),
-                                                color: isFav ? Colors.white: Colors.white,
+                                                color: Colors.white,
                                                 size: isFav? 28:28,
                                               ),
                                             ),
@@ -284,44 +303,46 @@ class _HomeState extends ConsumerState<Home> {
                                     ),
 
                                   ]
-                                ),
                               ),
-                            );
-                          },
-                          childCount: showData.photos.length,
-                        ),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            ),
+                          );
+                        },
+                        childCount: showData.photos.length,
+                      ),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 10,
                           childAspectRatio: 0.6
-                        ),
                       ),
                     ),
+                  ),
 
-                    SliverToBoxAdapter(
-                      child: showData.isLoadingMore
-                          ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator(color: Colors.black,)),
-                      )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              );
-              },
+                  SliverToBoxAdapter(
+                    child: showData.isLoadingMore
+                        ? Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
+                    )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
 
       floatingActionButton: Container(
         margin: EdgeInsets.only(right: 10,bottom: 10),
         child: FloatingActionButton(
-            onPressed: (){
-             Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoFeedScreen()));
-            },
-          child: Icon(Icons.play_arrow,color: Colors.black,size: 35,),
-          backgroundColor: Colors.white,
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoFeedScreen()));
+          },
+          child: Icon(Icons.play_arrow,color: isDark? Colors.black:Colors.white,size: 35,),
+          backgroundColor: isDark? Colors.white:Colors.black,
+          elevation: 8,
+
         ),
       ),
 

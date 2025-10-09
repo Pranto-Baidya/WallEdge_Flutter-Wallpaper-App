@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/main_screen.dart';
+
+import '../riverpod/theme_riverpod.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -23,16 +24,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(themeProvider)==ThemeMode.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         scrolledUnderElevation: 0,
-        systemOverlayStyle: const SystemUiOverlayStyle(
+        systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarColor: isDark? Colors.black:Colors.white,
             systemNavigationBarDividerColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark
+            statusBarIconBrightness: isDark? Brightness.light: Brightness.dark
         ),
         toolbarHeight: 0,
       ),
@@ -41,11 +43,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset('assets/icon.png',fit: BoxFit.contain,width: 100,height: 100,),
+            isDark? ClipOval(child: Image.asset('assets/wIcon.png',fit: BoxFit.contain,width: 150,height: 150,))
+                :ClipOval(child: Image.asset('assets/icon.png',fit: BoxFit.contain,width: 150,height: 150,)),
             SizedBox(height: 20,),
-            Text('WallEdge',style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500),),
-            SizedBox(height: 13,),
-            Text('A massive collection of images for you',style: TextStyle(color: Colors.black,fontSize: 15,fontWeight: FontWeight.w500),),
+            Text('WallEdge',style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),)
           ],
         ),
       ),

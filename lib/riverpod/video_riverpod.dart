@@ -12,13 +12,15 @@ class VideoState{
   final bool isLoadingMore;
   final String? error;
   final String? nextPage;
+  final String? query;
 
   VideoState({
     this.videos = const [],
     this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
-    this.nextPage
+    this.nextPage,
+    this.query
   });
 
   VideoState copyWith({
@@ -26,14 +28,16 @@ class VideoState{
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
-    String? nextPage
+    String? nextPage,
+    String? query
   }){
     return VideoState(
         videos: videos ?? this.videos,
         isLoading: isLoading ?? this.isLoading,
         isLoadingMore: isLoadingMore ?? this.isLoadingMore,
         error: error ?? this.error,
-        nextPage: nextPage ?? this.nextPage
+        nextPage: nextPage ?? this.nextPage,
+        query: query ?? this.query
     );
   }
 }
@@ -78,6 +82,51 @@ class VideoNotifier extends StateNotifier<VideoState>{
       );
     }catch(e){
       state = state.copyWith(isLoadingMore: false,error: e.toString());
+    }
+  }
+
+  Future<void> fetchSearchedVideo(String query)async{
+    try {
+      state = state.copyWith(isLoading: true,
+          videos: [],
+          error: null,
+          isLoadingMore: false,
+          query: query);
+
+      final data = await apiService.searchForVideos(state.query ?? '');
+
+      state = state.copyWith(
+          videos: data.videos,
+          nextPage: data.nextPage,
+          isLoading: false,
+          error: null
+      );
+    }catch(e){
+      state = state.copyWith(isLoading: false,error: e.toString());
+    }
+  }
+
+  Future<void> fetchMoreSearchedVideos()async{
+    if(state.nextPage==null || state.isLoadingMore){
+      return;
+    }
+    try {
+      state = state.copyWith(isLoadingMore: true, error: null);
+
+      final newData = await apiService.fetchMoreSearchedVideos(state.nextPage ?? '');
+
+      state = state.copyWith(
+          videos: [...state.videos, ...newData.videos],
+          nextPage: newData.nextPage,
+          isLoadingMore: false,
+          error: null
+      );
+    }
+    catch(e){
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: e.toString()
+      );
     }
   }
 }

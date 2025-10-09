@@ -6,6 +6,8 @@ import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 
+import '../riverpod/theme_riverpod.dart';
+
 final categoryPhotos =
 StateNotifierProvider<PhotoNotifier, PhotoState>((ref) => PhotoNotifier());
 
@@ -38,28 +40,30 @@ class _SpecificCategoryScreenState
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
+    final isDark = ref.watch(themeProvider)==ThemeMode.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        titleSpacing: 0,
         title: Text(
           '${widget.categoryName} wallpapers',
-          style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         scrolledUnderElevation: 0,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarDividerColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark
+        systemOverlayStyle:  SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: isDark? Colors.black:Colors.white,
+            systemNavigationBarDividerColor: Colors.transparent,
+            statusBarIconBrightness: isDark? Brightness.light: Brightness.dark
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
+                color: Theme.of(context).dividerColor,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: Offset(0, 1),
@@ -81,23 +85,24 @@ class _SpecificCategoryScreenState
           onRefresh: ()async{
             await photoNotifier.fetchCategory(widget.categoryName);
           },
-          backgroundColor: Colors.black,
-          color: Colors.white,
+          backgroundColor: isDark? Colors.white:Colors.black,
+          color: isDark? Colors.black:Colors.white,
           child: CustomScrollView(
+            physics: ClampingScrollPhysics(),
             slivers: [
               if (photoState.inProgress)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Center(child: CircularProgressIndicator(color: Colors.black,)),
-                        SizedBox(height: 15,),
-                        const Text('Loading...',style: TextStyle(color: Colors.black,fontSize: 15),)
-                      ],
-                    ),
-                  )
+                SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,)),
+                          SizedBox(height: 15,),
+                          Text('Loading...',style: Theme.of(context).textTheme.bodyMedium,)
+                        ],
+                      ),
+                    )
                 )
 
               else if (photoState.photos.isEmpty)
@@ -119,9 +124,9 @@ class _SpecificCategoryScreenState
                           (context, index) {
                         final data = photoState.photos[index];
                         return Card(
-                          color: Colors.white,
-                          shadowColor: Colors.black45,
-                          elevation: 5,
+                          color: Theme.of(context).cardColor,
+                          shadowColor: isDark? Colors.white12 : Colors.black54,
+                          elevation: 8,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -149,10 +154,7 @@ class _SpecificCategoryScreenState
                                       fit: BoxFit.cover,
                                       fadeInDuration:
                                       const Duration(milliseconds: 500),
-                                      placeholder: (context, url) => CachedNetworkImage(
-                                        imageUrl : data.srcMedium ?? '',
-                                        fit: BoxFit.cover,
-                                      ),
+                                      placeholder: (context, url) => Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,)),
                                       errorWidget: (context, error, st) =>
                                       const Icon(Icons.broken_image),
                                     ),
@@ -160,19 +162,18 @@ class _SpecificCategoryScreenState
                                 ),
                               ),
                               Positioned(
-                                top: 6,
+                                bottom: 6,
                                 right: 6,
                                 child: Consumer(
                                   builder: (context, ref, _) {
+
                                     final favState = ref.watch(favPhotoNotifier);
-                                    final favNotifier =
-                                    ref.read(favPhotoNotifier.notifier);
+                                    final favNotifier = ref.read(favPhotoNotifier.notifier);
 
                                     final isFav = favState.favPhotos.any((i) => i.id == data.id);
 
                                     return AnimatedSwitcher(
-                                      duration:
-                                      const Duration(milliseconds: 300),
+                                      duration: const Duration(milliseconds: 300),
                                       transitionBuilder: (child, animation) =>
                                           ScaleTransition(
                                             scale: animation,
@@ -183,13 +184,12 @@ class _SpecificCategoryScreenState
                                         onPressed: () {
                                           favNotifier.toggleFavPhoto(data);
                                         },
-                                        icon: isFav
-                                            ? const Icon(
+                                        icon: isFav ? Icon(
                                           Icons.favorite,
                                           color: Colors.white,
                                           size: 28,
                                         )
-                                            : const Icon(
+                                            : Icon(
                                           Icons.favorite_outline,
                                           color: Colors.white,
                                           size: 28,
@@ -209,11 +209,11 @@ class _SpecificCategoryScreenState
                 ),
 
               if (photoState.isLoadingMore)
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Center(
-                      child: CircularProgressIndicator(color: Colors.black),
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
                     ),
                   ),
                 ),

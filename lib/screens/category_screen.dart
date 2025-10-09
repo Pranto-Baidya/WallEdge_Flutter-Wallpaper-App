@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/specific_category_screen.dart';
 
+import '../riverpod/theme_riverpod.dart';
+
 class CategoryScreen extends ConsumerStatefulWidget {
   const CategoryScreen({super.key});
 
@@ -52,32 +54,29 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(themeProvider)==ThemeMode.dark;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        toolbarHeight: 50,
-        title: const Text(
+        toolbarHeight: 60,
+        title: Text(
           'Categories',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 28,
-            color: Colors.black,
-          ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.dark,
+          statusBarIconBrightness: isDark? Brightness.light: Brightness.dark,
           statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarColor: isDark? Colors.black:Colors.white,
           systemNavigationBarDividerColor: Colors.transparent,
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
+                color: Theme.of(context).dividerColor,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: Offset(0, 1),
@@ -94,8 +93,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               padding: const EdgeInsets.all(8),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 10,
                 childAspectRatio: 2,
               ),
               itemCount: categories.length,
@@ -108,8 +107,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     );
                   },
                   child: Card(
+                    shadowColor: isDark? Colors.white12 : Colors.black54,
                     elevation: 8,
-                    shadowColor: Colors.black54,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -120,8 +119,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                           child: CachedNetworkImage(
                             imageUrl: data,
                             fadeInDuration: const Duration(milliseconds: 500),
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(color: Colors.black),
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
                             ),
                             errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
@@ -136,7 +135,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         Center(
                           child: Text(
                             categories[index],
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

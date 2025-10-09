@@ -1,13 +1,16 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/download_videos_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
-import '../riverpod/dowload_image_riverpod.dart';
 
 class VideoPlayerWidget extends ConsumerStatefulWidget {
+  final int videoId;
   final String videoUrl;
-  const VideoPlayerWidget({required this.videoUrl, super.key});
+  const VideoPlayerWidget({required this.videoId, required this.videoUrl, super.key});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -15,19 +18,19 @@ class VideoPlayerWidget extends ConsumerStatefulWidget {
 
 class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
 
+  final DefaultCacheManager _cacheManager = DefaultCacheManager();
+
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
 
   void showDownloadDialogue(BuildContext context){
     showDialog(
-      barrierDismissible: false,
+        barrierDismissible: false,
         context: context,
         builder: (context){
           return Consumer(
               builder: (context,ref,_){
-
                 final progressState = ref.watch(downloadVideoProvider);
-
                 return AlertDialog(
                   backgroundColor: Colors.white,
                   title: Text('Downloading video',style: TextStyle(color: Colors.black),),
@@ -42,7 +45,7 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
                           value: progressState.progress,
                         ),
                       ),
-                      SizedBox(height: 5,),
+                      SizedBox(height: 10,),
                       Text('${(progressState.progress*100).toStringAsFixed(0)}%',style: TextStyle(color: Colors.black,fontSize: 15,fontWeight: FontWeight.w400),)
                     ],
                   ),
@@ -53,8 +56,8 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          minimumSize: Size(double.infinity, 50)
+                            backgroundColor: Colors.black,
+                            minimumSize: Size(double.infinity, 50)
                         ),
                         child: Text('Cancel download',style: TextStyle(color: Colors.white),)
                     )
@@ -80,27 +83,40 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
           allowFullScreen: true,
           allowPlaybackSpeedChanging: true,
           materialProgressColors: ChewieProgressColors(
-            bufferedColor: Colors.grey,
+            bufferedColor: Colors.blue.shade50,
             handleColor: Colors.white,
-            playedColor: Colors.black,
-            backgroundColor: Colors.white,
+            playedColor: Colors.blue,
+            backgroundColor: Colors.grey,
           ),
           additionalOptions: (context) => [
+            !ref.read(downloadVideoProvider.notifier).isVideoSaved(widget.videoId)?
             OptionItem(
               onTap: (context) {
-                if(!ref.watch(downloadVideoProvider).isDownloading) {
+                if(!ref.read(downloadVideoProvider).isDownloading) {
                   final downloadNotifier = ref.read(downloadVideoProvider.notifier);
-                  downloadNotifier.downloadVideo(widget.videoUrl);
+                  downloadNotifier.downloadVideo(widget.videoUrl,widget.videoId);
                   showDownloadDialogue(context);
                 }
               },
               iconData: Icons.download,
               title: 'Download video',
+            ): OptionItem(
+                onTap: (context)=>null,
+                iconData: Icons.download_done,
+                title: 'Video saved to gallery'
             ),
 
             OptionItem(
-              onTap: (context){
-
+              onTap: (context)async{
+                final file = await _cacheManager.getSingleFile(widget.videoUrl);
+                SharePlus.instance.share(
+                    ShareParams(
+                        text: 'Check out this awesome video from WallEdge',
+                        files: [
+                          XFile(file.path)
+                        ]
+                    )
+                );
               },
               iconData: Icons.share,
               title: 'Share video',
@@ -124,28 +140,41 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
       return Container(
         height: 200,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Colors.black,
+            borderRadius: BorderRadius.circular(15),
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                  offset: Offset(0, 2),
+                  spreadRadius: 0,
+                  color: Theme.of(context).dividerColor,
+                  blurRadius: 8
+              )
+            ]
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: Theme(
               data: ThemeData(
-                listTileTheme: ListTileThemeData(
-                  iconColor: Colors.black,
-                  textColor: Colors.black,
-                  titleTextStyle: TextStyle(fontWeight: FontWeight.w400,fontSize: 16)
-                ),
-                dividerTheme: DividerThemeData(
-                  color: Colors.black
-                ),
-                bottomSheetTheme: BottomSheetThemeData(
-                  dragHandleColor: Colors.black,
-                  showDragHandle: true,
-                  modalBackgroundColor: Colors.white
-                )
+                  listTileTheme: ListTileThemeData(
+                      iconColor: Theme.of(context).colorScheme.onPrimary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                      titleTextStyle: TextStyle(fontWeight: FontWeight.w400,fontSize: 16)
+                  ),
+                  dividerTheme: DividerThemeData(
+                      color: Theme.of(context).colorScheme.onPrimary
+                  ),
+                  bottomSheetTheme: BottomSheetThemeData(
+                      dragHandleColor: Theme.of(context).colorScheme.onPrimary,
+                      showDragHandle: true,
+                      modalBackgroundColor: Theme.of(context).cardColor
+                  )
               ),
-              child: Chewie(controller: _chewieController!)
+              child: Consumer(
+                  builder: (context,ref,_) {
+                    ref.watch(downloadVideoProvider);
+                    return Chewie(controller: _chewieController!);
+                  }
+              )
           ),
         ),
       );
@@ -154,10 +183,10 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
         height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: Colors.black,
+          color: Theme.of(context).colorScheme.primary,
         ),
-        child: const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        child: Center(
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
         ),
       );
     }

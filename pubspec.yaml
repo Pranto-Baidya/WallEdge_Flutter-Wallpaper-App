@@ -53,7 +53,7 @@ dependencies:
   video_player: ^2.10.0
   chewie: ^1.13.0
   share_plus: ^12.0.0
-  gallery_saver_plus: ^3.2.9
+
 
 
 
@@ -87,7 +87,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon.png
+    - assets/wIcon.png
     - assets/no_internet.png
+    - assets/noIn.png
     - api_key/api_key.env
   #   - images/a_dot_ham.jpeg
 

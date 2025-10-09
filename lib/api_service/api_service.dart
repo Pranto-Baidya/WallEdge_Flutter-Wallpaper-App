@@ -184,4 +184,56 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<PaginatedVideoModel> searchForVideos(String query,{int page = 1, int perPage = 10})async{
+    try {
+      final response = await _dio.get(
+          '/search',
+          queryParameters: {
+            'query': query,
+            'page': page,
+            'per_page': perPage
+          }
+      );
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        return PaginatedVideoModel.fromJson(json);
+      }
+      else {
+        throw Exception('Failed to fetch data: ${response.data}');
+      }
+    }
+    on DioException catch(e){
+      if(e.type==DioExceptionType.connectionTimeout){
+        throw Exception('Connection timeout');
+      }
+      throw e.toString();
+    }
+    catch(e){
+      rethrow;
+    }
+  }
+
+  Future<PaginatedVideoModel> fetchMoreSearchedVideos(String nextPageUrl)async{
+    try {
+      final response = await _dio.getUri(Uri.parse(nextPageUrl));
+
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        return PaginatedVideoModel.fromJson(json);
+      }
+      else {
+        throw Exception('Failed to fetch more videos: ${response.data}');
+      }
+    }
+    on DioException catch(e){
+      if(e.type==DioExceptionType.connectionTimeout){
+        throw Exception('Connection timeout');
+      }
+      throw e.toString();
+    }
+    catch(e){
+      rethrow;
+    }
+  }
 }

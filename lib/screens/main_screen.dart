@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +6,6 @@ import 'package:learning_riverpod/screens/favorite_screen.dart';
 import 'package:learning_riverpod/screens/home.dart';
 
 final countProvider = StateProvider<int>((ref)=>0);
-
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -23,21 +21,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final count = ref.watch(countProvider);
 
     return Scaffold(
-     body: IndexedStack(
-       index: count,
-       children: [
-         Home(),
-         CategoryScreen(),
-         FavoriteScreen()
-       ],
-     ),
+      body: IndexedStack(
+        index: count,
+        children: [
+          Home(),
+          CategoryScreen(),
+          FavoriteScreen()
+        ],
+      ),
 
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             boxShadow: [
               BoxShadow(
-                  color: Colors.black26,
+                  color: Theme.of(context).dividerColor,
                   spreadRadius: 0,
                   blurRadius: 2,
                   offset: Offset(0, -1)
@@ -45,31 +43,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             ]
         ),
         child: NavigationBar(
-
-          labelPadding: EdgeInsets.zero,
-          labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: 14,fontWeight: FontWeight.w500)),
-          maintainBottomViewPadding: false,
-          height: 55,
-          backgroundColor: Colors.white,
-          selectedIndex: count,
-          indicatorColor: Colors.transparent,
-          onDestinationSelected: (value){
-            ref.read(countProvider.notifier).state = value;
-          },
+            labelPadding: EdgeInsets.zero,
+            labelTextStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.labelMedium!),
+            maintainBottomViewPadding: true,
+            height: 55,
+            backgroundColor: Theme.of(context).cardColor,
+            selectedIndex: count,
+            indicatorColor: Colors.transparent,
+            onDestinationSelected: (value){
+              ref.read(countProvider.notifier).state = value;
+            },
             destinations: [
               NavigationDestination(
-                  selectedIcon: Icon(Icons.grid_view_rounded,color: Colors.black,),
-                  icon: Icon(Icons.grid_view,color: Colors.black,),
+                  selectedIcon: Icon(Icons.grid_view_rounded,color: Theme.of(context).colorScheme.onPrimary,),
+                  icon: Icon(Icons.grid_view,color: Theme.of(context).colorScheme.onPrimary,),
                   label: 'Wallpapers'
               ),
               NavigationDestination(
-                  selectedIcon: Icon(Icons.category,color: Colors.black,),
-                  icon: Icon(Icons.category_outlined,color: Colors.black,),
+                  selectedIcon: Icon(Icons.category,color: Theme.of(context).colorScheme.onPrimary,),
+                  icon: Icon(Icons.category_outlined,color: Theme.of(context).colorScheme.onPrimary,),
                   label: 'Categories'
               ),
               NavigationDestination(
-                  selectedIcon: Icon(Icons.favorite,color: Colors.black,),
-                  icon: Icon(Icons.favorite_border,color: Colors.black,),
+                  selectedIcon: Icon(Icons.favorite,color: Theme.of(context).colorScheme.onPrimary,),
+                  icon: Icon(Icons.favorite_border,color: Theme.of(context).colorScheme.onPrimary,),
                   label: 'Favorites'
               ),
             ]

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
 import 'package:learning_riverpod/widgets/url_herlper.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:wallpaper_manager_plus/wallpaper_manager_plus.dart';
 import '../models/photo_model.dart';
 import '../riverpod/dowload_image_riverpod.dart';
@@ -199,7 +200,7 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
               ),
             ),
             Positioned(
-              bottom: MediaQuery.of(context).padding.bottom + 10,
+              bottom: MediaQuery.of(context).padding.bottom + 0,
               right: 10,
               left: 10,
               child: Container(
@@ -376,7 +377,18 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
                             ],
                           );
                         }
-                    )
+                    ),
+                    _buildColumn(Icons.share, 'Share', ()async{
+                      final file = await cacheManager.getSingleFile(widget.photo.srcOriginal ?? '');
+                       SharePlus.instance.share(
+                         ShareParams(
+                           text: 'Check out this awesome wallpaper from WallEdge!',
+                           files: [
+                             XFile(file.path),
+                           ]
+                         )
+                       );
+                    })
 
                   ],
                 ),
