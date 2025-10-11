@@ -43,10 +43,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            isDark? ClipOval(child: Image.asset('assets/wIcon.png',fit: BoxFit.contain,width: 150,height: 150,))
-                :ClipOval(child: Image.asset('assets/icon.png',fit: BoxFit.contain,width: 150,height: 150,)),
-            SizedBox(height: 20,),
-            Text('WallEdge',style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),)
+            isDark? ClipRRect(
+               borderRadius: BorderRadius.circular(20),
+                child: Image.asset('assets/wIcon.png',fit: BoxFit.contain,width: 150,height: 150,)
+            ) :ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset('assets/icon.png',fit: BoxFit.contain,width: 150,height: 150,)
+            ),
           ],
         ),
       ),

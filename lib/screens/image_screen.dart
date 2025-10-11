@@ -170,18 +170,21 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
           children: [
             if (imageState.inProgress)
               const Center(child: CircularProgressIndicator()),
-            Hero(
-              tag: widget.heroTag,
-              child: InteractiveViewer(
-                child: CachedNetworkImage(
-                  imageUrl: widget.photo.srcOriginal??'',
-                  fit: BoxFit.cover,
-                  fadeInDuration: const Duration(milliseconds: 500),
-                  placeholder: (context, url) {
-                    return CachedNetworkImage(imageUrl : widget.photo.srcMedium ?? '', fit: BoxFit.cover);
-                  },
-                  errorWidget: (context, url, st) =>
-                  const Icon(Icons.broken_image_outlined, color: Colors.white),
+            InteractiveViewer(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Hero(
+                  tag: widget.heroTag,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.photo.srcOriginal??'',
+                    fit: BoxFit.cover,
+                    fadeInDuration: const Duration(milliseconds: 500),
+                    placeholder: (context, url) {
+                      return CachedNetworkImage(imageUrl : widget.photo.srcMedium ?? '', fit: BoxFit.cover);
+                    },
+                    errorWidget: (context, url, st) =>
+                    const Icon(Icons.broken_image_outlined, color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -200,7 +203,7 @@ class _ImageScreenState extends ConsumerState<ImageScreen> {
               ),
             ),
             Positioned(
-              bottom: MediaQuery.of(context).padding.bottom + 0,
+              bottom: MediaQuery.of(context).padding.bottom + 8,
               right: 10,
               left: 10,
               child: Container(

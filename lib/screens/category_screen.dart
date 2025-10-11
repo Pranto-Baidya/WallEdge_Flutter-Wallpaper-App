@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/specific_category_screen.dart';
+import 'package:learning_riverpod/widgets/animated_view.dart';
 
 import '../riverpod/theme_riverpod.dart';
 
@@ -106,43 +107,45 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         categoryName: categories[index]))
                     );
                   },
-                  child: Card(
-                    shadowColor: isDark? Colors.white12 : Colors.black54,
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CachedNetworkImage(
-                            imageUrl: data,
-                            fadeInDuration: const Duration(milliseconds: 500),
-                            placeholder: (context, url) => Center(
-                              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
-                            ),
-                            errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withOpacity(0.4),
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            categories[index],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                  child: AnimatedScrollItem(
+                    child: Card(
+                      shadowColor: isDark? Colors.white12 : Colors.black54,
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: CachedNetworkImage(
+                              imageUrl: data,
+                              fadeInDuration: const Duration(milliseconds: 500),
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
+                              ),
+                              errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                              fit: BoxFit.cover,
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.4),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              categories[index],
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

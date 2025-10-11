@@ -96,8 +96,8 @@ class _VideoFeedScreenState extends ConsumerState<VideoFeedScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            isDark? Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,)
-                :Image.asset('assets/noIn.png',fit: BoxFit.contain,width: 100,height: 100,),
+            isDark? Image.asset('assets/noIn.png',fit: BoxFit.contain,width: 100,height: 100,)
+                :Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,),
             SizedBox(height: 20,),
             Text('No internet connection',style: Theme.of(context).textTheme.bodyLarge,),
             SizedBox(height: 10,),
@@ -126,7 +126,46 @@ class _VideoFeedScreenState extends ConsumerState<VideoFeedScreen> {
                   )
                 ],
               ),
-            )
+            ):currentState.error!=null?
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.wifi_off,color: Theme.of(context).iconTheme.color,size: 50,),
+                      SizedBox(height: 15,),
+                       Text(currentState.error!.contains('timeout')?
+                       'Connection time out' :'Something went wrong',
+                         style: Theme.of(context).textTheme.titleMedium,
+                       ),
+                      SizedBox(height: 20,),
+                      InkWell(
+                        onTap: ()async{
+                          if(isSearching){
+                            await searchVidNotifier.fetchSearchedVideo(currentState.query??'');
+                          }
+                          await videoNotifier.fetchInitialVideos();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(5),
+                          width: 160,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: isDark? Colors.white : Colors.black
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
+                              SizedBox(width: 5,),
+                              Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
                 : NotificationListener<ScrollNotification>(
               onNotification: (scrollInfo) {
                 if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !currentState.isLoadingMore) {
@@ -144,12 +183,13 @@ class _VideoFeedScreenState extends ConsumerState<VideoFeedScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: SearchBar(
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                       controller: _searchController,
                       backgroundColor: WidgetStatePropertyAll(Theme.of(context).cardColor),
                       leading: Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Icon(Icons.search,
-                            color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7)),
+                            color: Theme.of(context).colorScheme.onPrimary),
                       ),
                       hintText: 'Search for videos...',
                       elevation: WidgetStatePropertyAll(3) ,
@@ -168,7 +208,7 @@ class _VideoFeedScreenState extends ConsumerState<VideoFeedScreen> {
                   Expanded(
                     child: ListView.builder(
                       physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                       itemCount: currentState.videos.length + (currentState.isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index < currentState.videos.length) {

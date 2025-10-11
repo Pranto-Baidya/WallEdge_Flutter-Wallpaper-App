@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
+import 'package:learning_riverpod/widgets/animated_view.dart';
 import '../riverpod/theme_riverpod.dart';
 import 'image_screen.dart';
 
@@ -152,26 +153,28 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Hero(
-                            tag: data.id.toString(),
-                            child: CachedNetworkImage(
-                              imageUrl: data.srcOriginal ?? "",
-                              fadeInDuration:
-                              const Duration(milliseconds: 500),
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) {
-                                return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,));
-                              },
-                              errorWidget: (context, error, st) =>
-                              const Icon(Icons.broken_image_outlined),
+                        AnimatedScrollItem(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Hero(
+                              tag: data.id.toString(),
+                              child: CachedNetworkImage(
+                                imageUrl: data.srcOriginal ?? "",
+                                fadeInDuration:
+                                const Duration(milliseconds: 500),
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) {
+                                  return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,));
+                                },
+                                errorWidget: (context, error, st) =>
+                                const Icon(Icons.broken_image_outlined),
+                              ),
                             ),
                           ),
                         ),
                         Positioned(
-                          bottom: 6,
-                          right: 6,
+                          bottom: 10,
+                          right: 10,
                           child: IconButton(
                             onPressed: () async {
                               await favNotifier.toggleFavPhoto(data);
@@ -194,7 +197,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 10,
-                childAspectRatio: 0.6,
+                childAspectRatio: 0.58,
               ),
             ),
           ),

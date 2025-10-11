@@ -44,7 +44,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ),
         child: NavigationBar(
             labelPadding: EdgeInsets.zero,
-            labelTextStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.labelMedium!),
+            labelTextStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.labelLarge!),
             maintainBottomViewPadding: true,
             height: 55,
             backgroundColor: Theme.of(context).cardColor,
@@ -60,8 +60,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   label: 'Wallpapers'
               ),
               NavigationDestination(
-                  selectedIcon: Icon(Icons.category,color: Theme.of(context).colorScheme.onPrimary,),
-                  icon: Icon(Icons.category_outlined,color: Theme.of(context).colorScheme.onPrimary,),
+                  selectedIcon: Icon(Icons.space_dashboard,color: Theme.of(context).colorScheme.onPrimary,),
+                  icon: Icon(Icons.space_dashboard_outlined,color: Theme.of(context).colorScheme.onPrimary),
                   label: 'Categories'
               ),
               NavigationDestination(

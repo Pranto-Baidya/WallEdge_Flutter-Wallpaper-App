@@ -144,9 +144,9 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
             color: Theme.of(context).colorScheme.primary,
             boxShadow: [
               BoxShadow(
-                  offset: Offset(0, 2),
+                  offset: Offset(0, 3),
                   spreadRadius: 0,
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).dividerColor.withOpacity(0.25),
                   blurRadius: 8
               )
             ]
@@ -184,6 +184,14 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                  offset: Offset(0, 3),
+                  spreadRadius: 0,
+                  color: Theme.of(context).dividerColor.withOpacity(0.25),
+                  blurRadius: 8
+              )
+            ]
         ),
         child: Center(
           child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/riverpod/favorite_riverpod.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
+import 'package:learning_riverpod/widgets/animated_view.dart';
 
 import '../riverpod/theme_riverpod.dart';
 
@@ -109,6 +110,44 @@ class _SpecificCategoryScreenState
                 const SliverFillRemaining(
                   child: Center(child: Text('No wallpapers to show')),
                 )
+                
+                else if(photoState.error!=null)
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.wifi_off,color: Theme.of(context).iconTheme.color,size: 50,),
+                        SizedBox(height: 15,),
+                        Text(photoState.error!.contains('timeout')?
+                        'Connection time out' :'Something went wrong',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 20,),
+                        InkWell(
+                          onTap: ()async{
+                            await photoNotifier.fetchCategory(photoState.query);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            width: 160,
+                            height: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: isDark? Colors.white : Colors.black
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
+                                SizedBox(width: 5,),
+                                Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
 
               else
                 SliverPadding(
@@ -118,7 +157,7 @@ class _SpecificCategoryScreenState
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 10,
-                      childAspectRatio: 0.6,
+                      childAspectRatio: 0.58,
                     ),
                     delegate: SliverChildBuilderDelegate(
                           (context, index) {
@@ -145,25 +184,27 @@ class _SpecificCategoryScreenState
                                     ),
                                   );
                                 },
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Hero(
-                                    tag: data.id.toString(),
-                                    child: CachedNetworkImage(
-                                      imageUrl: data.srcOriginal ?? '',
-                                      fit: BoxFit.cover,
-                                      fadeInDuration:
-                                      const Duration(milliseconds: 500),
-                                      placeholder: (context, url) => Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,)),
-                                      errorWidget: (context, error, st) =>
-                                      const Icon(Icons.broken_image),
+                                child: AnimatedScrollItem(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Hero(
+                                      tag: data.id.toString(),
+                                      child: CachedNetworkImage(
+                                        imageUrl: data.srcOriginal ?? '',
+                                        fit: BoxFit.cover,
+                                        fadeInDuration:
+                                        const Duration(milliseconds: 500),
+                                        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,)),
+                                        errorWidget: (context, error, st) =>
+                                        const Icon(Icons.broken_image),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                               Positioned(
-                                bottom: 6,
-                                right: 6,
+                                bottom: 10,
+                                right: 10,
                                 child: Consumer(
                                   builder: (context, ref, _) {
 

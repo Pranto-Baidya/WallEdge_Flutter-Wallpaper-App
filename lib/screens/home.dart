@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +11,7 @@ import 'package:learning_riverpod/screens/about_app.dart';
 import 'package:learning_riverpod/screens/image_screen.dart';
 import 'package:learning_riverpod/riverpod/photo_riverpod.dart';
 import 'package:learning_riverpod/screens/video_screen.dart';
+import 'package:learning_riverpod/widgets/animated_view.dart';
 import 'package:learning_riverpod/widgets/dialogue%20helper.dart';
 
 final searchProvider = StateProvider<bool>((ref)=>false);
@@ -114,9 +117,10 @@ class _HomeState extends ConsumerState<Home> {
 
         ):Row(
           children: [
-            isDark?ClipOval(child: Image.asset('assets/wIcon.png',fit: BoxFit.cover,height: 45,width: 45,))
-                :ClipOval(child: Image.asset('assets/icon.png',fit: BoxFit.cover,height: 45,width: 45,)),
-            SizedBox(width: 10,),
+            isDark?ClipOval(
+                child: Image.asset('assets/wIcon.png',fit: BoxFit.cover,height: 43,width: 43,))
+                :ClipOval(child: Image.asset('assets/icon.png',fit: BoxFit.cover,height: 43,width: 43,)),
+            SizedBox(width: 12,),
             Text('WallEdge',style: theme.textTheme.titleLarge),
           ],
         ),
@@ -141,12 +145,12 @@ class _HomeState extends ConsumerState<Home> {
           ),
         ),
         actions: [
-          IconButton(
+          !isSearching?IconButton(
               onPressed: (){
                 ref.read(themeProvider.notifier).setTheme(!isDark);
               },
               icon: isDark? Icon(Icons.wb_sunny_outlined,color: theme.iconTheme.color,) : Icon(Icons.dark_mode_outlined,color: theme.iconTheme.color)
-          ),
+          ):SizedBox.shrink(),
           isSearching?SizedBox.shrink():
           IconButton(
               onPressed: (){
@@ -167,7 +171,7 @@ class _HomeState extends ConsumerState<Home> {
                       onTap: (){
                         Alert.dialogue(context, 'Coming Soon!', 'Change log will appear soon, Stay tuned.',null);
                       },
-                      child: Text('Change Log',style: TextStyle(fontSize: 16,color: theme.colorScheme.onPrimary))
+                      child: Text('Change log',style: TextStyle(fontSize: 16,color: theme.colorScheme.onPrimary))
                   ),
                   PopupMenuItem(
                       onTap: (){
@@ -187,8 +191,8 @@ class _HomeState extends ConsumerState<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            isDark? Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,)
-                :Image.asset('assets/noIn.png',fit: BoxFit.contain,width: 100,height: 100,),
+            isDark? Image.asset('assets/noIn.png',fit: BoxFit.contain,width: 100,height: 100,)
+            :Image.asset('assets/no_internet.png',fit: BoxFit.contain,width: 100,height: 100,),
             SizedBox(height: 20,),
             Text('No internet connection',style: theme.textTheme.bodyLarge,),
             SizedBox(height: 10,),
@@ -220,6 +224,48 @@ class _HomeState extends ConsumerState<Home> {
               );
             }
 
+            if(showData.error!=null){
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.wifi_off,color: Theme.of(context).iconTheme.color,size: 50,),
+                    SizedBox(height: 15,),
+                    Text(showData.error!.contains('timeout')?
+                    'Connection time out' :'Something went wrong',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    SizedBox(height: 20,),
+                    InkWell(
+                      onTap: ()async{
+                        if(isSearchingForBody){
+                          await searchNotifier.searchWallpapers(showData.query);
+                        }
+                        await photoNotifier.fetchInitialPhotos();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        width: 160,
+                        height: 50,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: isDark? Colors.white : Colors.black
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
+                            SizedBox(width: 5,),
+                            Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollInfo) {
                 if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !showData.isLoadingMore) {
@@ -237,7 +283,7 @@ class _HomeState extends ConsumerState<Home> {
                             (context, index) {
 
                           final data = showData.photos[index];
-                          final heroTag = isSearching ? 'search-${data.id}' : 'home-${data.id}';
+                          final heroTag = isSearchingForBody? 'search-${data.id}' : 'home-${data.id}';
 
                           return Card(
                             color: theme.cardColor,
@@ -256,24 +302,26 @@ class _HomeState extends ConsumerState<Home> {
                               child: Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Hero(
-                                        tag: heroTag,
-                                        child: CachedNetworkImage(
-                                          imageUrl : data.srcPortrait ?? '',
-                                          fadeInDuration: const Duration(milliseconds: 500),
-                                          fit: BoxFit.cover,
-                                          placeholder: (context,url){
-                                            return Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,));
-                                          },
-                                          errorWidget: (context,error,st)=> const Icon(Icons.broken_image_outlined),
+                                    AnimatedScrollItem(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Hero(
+                                          tag: heroTag,
+                                          child: CachedNetworkImage(
+                                            imageUrl : data.srcPortrait ?? '',
+                                            fadeInDuration: const Duration(milliseconds: 500),
+                                            fit: BoxFit.cover,
+                                            placeholder: (context,url){
+                                              return Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,));
+                                            },
+                                            errorWidget: (context,error,st)=> const Icon(Icons.broken_image_outlined),
+                                          ),
                                         ),
                                       ),
                                     ),
                                     Positioned(
-                                      bottom: 6,
-                                      right: 6,
+                                      bottom: 10,
+                                      right: 10,
                                       child: Consumer(
                                         builder: (context, ref, _) {
 
@@ -313,7 +361,7 @@ class _HomeState extends ConsumerState<Home> {
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 10,
-                          childAspectRatio: 0.6
+                          childAspectRatio: 0.58
                       ),
                     ),
                   ),
@@ -339,8 +387,8 @@ class _HomeState extends ConsumerState<Home> {
           onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoFeedScreen()));
           },
-          child: Icon(Icons.play_arrow,color: isDark? Colors.black:Colors.white,size: 35,),
-          backgroundColor: isDark? Colors.white:Colors.black,
+          child: Icon(Icons.play_arrow,color: isDark? Colors.white:Colors.black,size: 35,),
+          backgroundColor: isDark? Colors.black:Colors.white,
           elevation: 8,
 
         ),
