@@ -150,13 +150,13 @@ class _VideoFeedScreenState extends ConsumerState<VideoFeedScreen> {
                           width: 160,
                           height: 50,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: isDark? Colors.white : Colors.black
+                              borderRadius: BorderRadius.circular(30),
+                              color: isDark? Colors.white : Colors.black
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
+                              Text('Retry',style: Theme.of(context).textTheme.titleMedium?.copyWith(color: isDark?Colors.black:Colors.white,fontSize: 20),),
                               SizedBox(width: 5,),
                               Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
                             ],

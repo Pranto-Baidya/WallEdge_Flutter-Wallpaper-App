@@ -132,13 +132,13 @@ class _SpecificCategoryScreenState
                             width: 160,
                             height: 50,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(30),
                                 color: isDark? Colors.white : Colors.black
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
+                                Text('Retry',style: Theme.of(context).textTheme.titleMedium?.copyWith(color: isDark?Colors.black:Colors.white,fontSize: 20),),
                                 SizedBox(width: 5,),
                                 Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
                               ],
@@ -251,13 +251,21 @@ class _SpecificCategoryScreenState
 
               if (photoState.isLoadingMore)
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
+                  child: photoState.isLoadingMore? Padding(
+                    padding: EdgeInsets.all(20),
                     child: Center(
-                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary,)),
+                          SizedBox(height: 15,),
+                          Text('Loading...',style: Theme.of(context).textTheme.bodyMedium,)
+                        ],
+                      ),
                     ),
-                  ),
-                ),
+                  ): const SizedBox.shrink(),
+                )
             ],
           ),
         ),

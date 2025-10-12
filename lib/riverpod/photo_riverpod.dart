@@ -36,7 +36,7 @@ class PhotoState {
       photos: photos ?? this.photos,
       inProgress: inProgress ?? this.inProgress,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      error: error ?? this.error,
+      error: error,
       nextPage: nextPage ?? this.nextPage,
       category: category ?? this.category,
       query: query ?? this.query

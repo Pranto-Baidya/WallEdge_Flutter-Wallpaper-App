@@ -35,7 +35,7 @@ class VideoState{
         videos: videos ?? this.videos,
         isLoading: isLoading ?? this.isLoading,
         isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-        error: error ?? this.error,
+        error: error,
         nextPage: nextPage ?? this.nextPage,
         query: query ?? this.query
     );

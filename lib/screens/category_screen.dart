@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learning_riverpod/screens/specific_category_screen.dart';
-import 'package:learning_riverpod/widgets/animated_view.dart';
 
 import '../riverpod/theme_riverpod.dart';
 
@@ -55,61 +54,73 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ref.watch(themeProvider)==ThemeMode.dark;
+    final isDark = ref.watch(themeProvider) == ThemeMode.dark;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        toolbarHeight: 60,
-        title: Text(
-          'Categories',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        scrolledUnderElevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness: isDark? Brightness.light: Brightness.dark,
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: isDark? Colors.black:Colors.white,
-          systemNavigationBarDividerColor: Colors.transparent,
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).dividerColor,
-                spreadRadius: 0,
-                blurRadius: 3,
-                offset: Offset(0, 1),
-              )
-            ],
+      body: CustomScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            toolbarHeight: 60,
+            pinned: true,
+            floating: false,
+            snap: false,
+            title: Text(
+              'Categories',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            scrolledUnderElevation: 0,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: isDark ? Colors.black : Colors.white,
+              systemNavigationBarDividerColor: Colors.transparent,
+            ),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).dividerColor,
+                    spreadRadius: 0,
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
-          SizedBox(height: MediaQuery.of(context).size.height*0.01,),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(8),
+
+          SliverToBoxAdapter(
+            child: SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+          ),
+
+          SliverPadding(
+            padding: const EdgeInsets.all(8),
+            sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 10,
                 childAspectRatio: 2,
               ),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final data = urls[index];
-                return GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SpecificCategoryScreen(
-                        categoryName: categories[index]))
-                    );
-                  },
-                  child: AnimatedScrollItem(
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                  final data = urls[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SpecificCategoryScreen(
+                            categoryName: categories[index],
+                          ),
+                        ),
+                      );
+                    },
                     child: Card(
-                      shadowColor: isDark? Colors.white12 : Colors.black54,
+                      shadowColor: isDark ? Colors.white12 : Colors.black54,
                       elevation: 8,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -122,7 +133,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                               imageUrl: data,
                               fadeInDuration: const Duration(milliseconds: 500),
                               placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary),
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                ),
                               ),
                               errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
@@ -137,7 +150,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                           Center(
                             child: Text(
                               categories[index],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -147,9 +160,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+                childCount: categories.length,
+              ),
             ),
           ),
         ],

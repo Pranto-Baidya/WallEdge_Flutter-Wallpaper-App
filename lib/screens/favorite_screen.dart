@@ -124,7 +124,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
         ),
       )
           : CustomScrollView(
-        physics: ClampingScrollPhysics(),
+        physics: AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
             padding: EdgeInsets.symmetric(

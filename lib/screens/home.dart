@@ -78,6 +78,8 @@ class _HomeState extends ConsumerState<Home> {
 
     var theme = Theme.of(context);
 
+    final showData = isSearchingForBody? searchState : photoState;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -200,184 +202,204 @@ class _HomeState extends ConsumerState<Home> {
           ],
         ),
       )
-          :RefreshIndicator(
-        onRefresh: ()async{
-          await photoNotifier.fetchInitialPhotos();
+          : NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo){
+          if(scrollInfo.metrics.pixels>=scrollInfo.metrics.maxScrollExtent-100 && !showData.isLoadingMore){
+            isSearching? searchNotifier.getMoreSearchedPhotos(showData.query) : photoNotifier.fetchMorePhotos();
+          }
+          return false;
         },
-        backgroundColor: isDark? Colors.white:Colors.black,
-        color: isDark? Colors.black:Colors.white,
-        child: Builder(
-          builder: (context) {
-            final showData = isSearchingForBody? searchState : photoState;
-
-            if (showData.inProgress) {
-              return Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
-                    SizedBox(height: 15,),
-                    Text('Loading...',style: theme.textTheme.bodyMedium,)
-                  ],
-                ),
-              );
-            }
-
-            if(showData.error!=null){
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.wifi_off,color: Theme.of(context).iconTheme.color,size: 50,),
-                    SizedBox(height: 15,),
-                    Text(showData.error!.contains('timeout')?
-                    'Connection time out' :'Something went wrong',
-                      style: Theme.of(context).textTheme.titleMedium,
+        child: RefreshIndicator(
+          onRefresh: ()async{
+            await photoNotifier.fetchInitialPhotos();
+          },
+          backgroundColor: isDark? Colors.white:Colors.black,
+          color: isDark? Colors.black:Colors.white,
+          child: CustomScrollView(
+            scrollDirection: Axis.vertical,
+            physics: AlwaysScrollableScrollPhysics(),
+            slivers: [
+              if(showData.inProgress)
+                 SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
+                        SizedBox(height: 15,),
+                        Text('Loading...',style: theme.textTheme.bodyMedium,)
+                      ],
                     ),
-                    SizedBox(height: 20,),
-                    InkWell(
-                      onTap: ()async{
-                        if(isSearchingForBody){
-                          await searchNotifier.searchWallpapers(showData.query);
-                        }
-                        await photoNotifier.fetchInitialPhotos();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        width: 160,
-                        height: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: isDark? Colors.white : Colors.black
+                  ),
+                )
+              else if(showData.error!=null)
+              SliverFillRemaining(
+                  child:  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.sentiment_dissatisfied_outlined,color: Theme.of(context).iconTheme.color,size: 50,),
+                        SizedBox(height: 15,),
+                        Text(showData.error!.contains('timeout')?
+                        'Connection time out' :'Something went wrong',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Retry',style: Theme.of(context).textTheme.titleLarge?.copyWith(color: isDark?Colors.black:Colors.white),),
-                            SizedBox(width: 5,),
-                            Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            }
+                        SizedBox(height: 20,),
+                        InkWell(
+                          onTap: () async {
+                            if (isSearchingForBody) {
+                              await searchNotifier.searchWallpapers(showData.query);
+                            } else {
+                              await photoNotifier.fetchInitialPhotos();
+                            }
+                          },
 
-            return NotificationListener<ScrollNotification>(
-              onNotification: (scrollInfo) {
-                if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !showData.isLoadingMore) {
-                  isSearching? searchNotifier.getMoreSearchedPhotos(_searchController.text) : photoNotifier.fetchMorePhotos();
-                }
-                return false;
-              },
-              child: CustomScrollView(
-                physics: ClampingScrollPhysics(),
-                slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
-                    sliver: SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-
-                          final data = showData.photos[index];
-                          final heroTag = isSearchingForBody? 'search-${data.id}' : 'home-${data.id}';
-
-                          return Card(
-                            color: theme.cardColor,
-                            shadowColor: isDark? Colors.white12 : Colors.black54,
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            width: 160,
+                            height: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: isDark? Colors.white : Colors.black
                             ),
-                            child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>ImageScreen(
-                                  photo: data,
-                                  heroTag: heroTag,
-                                )));
-                              },
-                              child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    AnimatedScrollItem(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Hero(
-                                          tag: heroTag,
-                                          child: CachedNetworkImage(
-                                            imageUrl : data.srcPortrait ?? '',
-                                            fadeInDuration: const Duration(milliseconds: 500),
-                                            fit: BoxFit.cover,
-                                            placeholder: (context,url){
-                                              return Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,));
-                                            },
-                                            errorWidget: (context,error,st)=> const Icon(Icons.broken_image_outlined),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 10,
-                                      right: 10,
-                                      child: Consumer(
-                                        builder: (context, ref, _) {
-
-                                          final favState = ref.watch(favPhotoNotifier);
-                                          final favNotifier = ref.read(favPhotoNotifier.notifier);
-
-                                          final isFav = favState.favPhotos.any((p) => p.id == data.id);
-
-                                          return IconButton(
-                                            onPressed: () async {
-                                              await favNotifier.toggleFavPhoto(data);
-                                            },
-                                            icon: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 250),
-                                              transitionBuilder: (child, anim) =>
-                                                  ScaleTransition(scale: anim, child: child),
-                                              child: Icon(
-                                                isFav ? Icons.favorite : Icons.favorite_border,
-                                                key: ValueKey(isFav),
-                                                color: Colors.white,
-                                                size: isFav? 28:28,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-
-                                  ]
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Retry',style: Theme.of(context).textTheme.titleMedium?.copyWith(color: isDark?Colors.black:Colors.white,fontSize: 20),),
+                                SizedBox(width: 5,),
+                                Icon(Icons.refresh,color: isDark? Colors.black : Colors.white,)
+                              ],
                             ),
-                          );
-                        },
-                        childCount: showData.photos.length,
-                      ),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: width*0.03, vertical: height*0.02),
+                  sliver: SliverGrid(
+                      gridDelegate:  const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 10,
                           childAspectRatio: 0.58
                       ),
+                      delegate: SliverChildBuilderDelegate(
+                         childCount: showData.photos.length,
+                          (context,index){
+                             final data = showData.photos[index];
+                             final heroTag = isSearchingForBody || isSearching? 'search-${data.id}' : 'home-${data.id}';
+
+                             return Card(
+                               color: theme.cardColor,
+                               shadowColor: isDark ? Colors.white12 : Colors
+                                   .black54,
+                               elevation: 8,
+                               shape: RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.circular(20),
+                               ),
+                               child: GestureDetector(
+                                 onTap: () {
+                                   Navigator.push(context,
+                                       MaterialPageRoute(builder: (context) =>
+                                           ImageScreen(
+                                             photo: data,
+                                             heroTag: heroTag,
+                                           )));
+                                 },
+                                 child: Stack(
+                                     fit: StackFit.expand,
+                                     children: [
+                                       AnimatedScrollItem(
+                                         child: ClipRRect(
+                                           borderRadius: BorderRadius.circular(20),
+                                           child: Hero(
+                                             tag: data.id,
+                                             child: CachedNetworkImage(
+                                               imageUrl: data.srcPortrait ?? '',
+                                               fadeInDuration: const Duration(milliseconds: 500),
+                                               fit: BoxFit.cover,
+                                               placeholder: (context, url) {
+                                                 return Center(
+                                                     child: CircularProgressIndicator(
+                                                       color: theme.colorScheme.onPrimary,));
+                                               },
+                                               errorWidget: (context, error,
+                                                   st) =>
+                                               const Icon(
+                                                   Icons.broken_image_outlined),
+                                             ),
+                                           ),
+                                         ),
+                                       ),
+                                       Positioned(
+                                         bottom: 10,
+                                         right: 10,
+                                         child: Consumer(
+                                           builder: (context, ref, _) {
+                                             final favState = ref.watch(
+                                                 favPhotoNotifier);
+                                             final favNotifier = ref.read(
+                                                 favPhotoNotifier.notifier);
+
+                                             final isFav = favState.favPhotos
+                                                 .any((p) => p.id == data.id);
+
+                                             return IconButton(
+                                               onPressed: () async {
+                                                 await favNotifier
+                                                     .toggleFavPhoto(data);
+                                               },
+                                               icon: AnimatedSwitcher(
+                                                 duration: const Duration(
+                                                     milliseconds: 250),
+                                                 transitionBuilder: (child,
+                                                     anim) =>
+                                                     ScaleTransition(
+                                                         scale: anim,
+                                                         child: child),
+                                                 child: Icon(
+                                                   isFav
+                                                       ? Icons.favorite
+                                                       : Icons.favorite_border,
+                                                   key: ValueKey(isFav),
+                                                   color: Colors.white,
+                                                   size: isFav ? 28 : 28,
+                                                 ),
+                                               ),
+                                             );
+                                           },
+                                         ),
+                                       ),
+                                     ]
+                                 ),
+                               ),
+                             );
+                           }
+                      ),
+                  ),
+                ),
+              SliverToBoxAdapter(
+                child: showData.isLoadingMore? Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
+                        SizedBox(height: 15,),
+                        Text('Loading...',style: theme.textTheme.bodyMedium,)
+                      ],
                     ),
                   ),
-
-                  SliverToBoxAdapter(
-                    child: showData.isLoadingMore
-                        ? Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator(color: theme.colorScheme.onPrimary,)),
-                    )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            );
-          },
+                  ): const SizedBox.shrink(),
+                )
+            ],
+          )
         ),
       ),
 
