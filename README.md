@@ -3,7 +3,7 @@
   WallEdge is a beautifully designed Flutter wallpaper app that brings you a world of stunning, high-quality images directly from the Pexels API. Browse, search, download and set your favorite wallpapers to your    device screen effortlessly — all in a clean and modern UI built with Riverpod for state management.
 
 <p align="center">
-  <a href="https://github.com/Pranto-Baidya/WallEdge_Flutter-Wallpaper-App/releases/download/v1.0.0/app-release.apk">
+  <a href="https://github.com/Pranto-Baidya/WallEdge_Flutter-Wallpaper-App/releases/download/v1.0.0/WallEdge.apk">
     <img src="https://img.shields.io/badge/Download%20APK-WallEdge-blue?style=for-the-badge&logo=android" alt="Download APK">
   </a>
 </p>
