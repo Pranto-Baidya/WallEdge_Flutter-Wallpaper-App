@@ -54,3 +54,22 @@
 ✦ Video Player / Chewie – Video playback
 
 ✦ Pexels API – Data source for wallpapers & videos
+
+## Folder Structure
+
+<img width="553" height="273" alt="image" src="https://github.com/user-attachments/assets/9acc1650-f711-4883-ab76-6632cf68f11f" />
+
+## Project setup
+#### Clone the repository
+git clone https://github.com/Pranto-Baidya/WallEdge_Flutter-Wallpaper-App.git
+
+#### Navigate to the project
+cd walledge
+
+#### Install dependencies
+flutter pub get
+
+#### Run the app
+flutter run
+
+
